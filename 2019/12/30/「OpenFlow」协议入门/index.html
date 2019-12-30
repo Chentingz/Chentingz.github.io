@@ -5,15 +5,28 @@
   
 
   
-  <title>Chentingz</title>
+  <title>「OpenFlow」协议入门 | Chentingz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Chentingz">
-<meta property="og:url" content="https://chentingz.github.io/index.html">
+  <meta name="description" content="0x00 目录 0x00 目录 0x01 前言 0x02 OpenFlow简介 0x03 SDN与OpenFlow的关系 0x04 基于OpenFlow的SDN网络工作原理 传统网络中网络设备的工作过程 基于OpenFlow的SDN网络中网络设备的工作过程 小结   0x05 流表与流水线处理 流表   0x06 OpenFlow的两种下发流表方式 Proactive Reactive   0x0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="「OpenFlow」协议入门">
+<meta property="og:url" content="https://chentingz.github.io/2019/12/30/「OpenFlow」协议入门/index.html">
 <meta property="og:site_name" content="Chentingz">
+<meta property="og:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 OpenFlow简介 0x03 SDN与OpenFlow的关系 0x04 基于OpenFlow的SDN网络工作原理 传统网络中网络设备的工作过程 基于OpenFlow的SDN网络中网络设备的工作过程 小结   0x05 流表与流水线处理 流表   0x06 OpenFlow的两种下发流表方式 Proactive Reactive   0x0">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/OpenFlow版本变迁.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/传统网络中网络设备的工作过程.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/流表不空时，基于OpenFlow的SDN网络中网络设备的工作过程.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/流表为空时，基于OpenFlow的SDN网络中网络设备的工作过程.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/传统网络与OpenFlow网络中网络设备对比.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/SDN学习笔记/流表项组成.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/SDN学习笔记/Instruction类型.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/OpenFlow消息种类.png">
+<meta property="og:updated_time" content="2019-12-30T03:24:22.643Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chentingz">
+<meta name="twitter:title" content="「OpenFlow」协议入门">
+<meta name="twitter:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 OpenFlow简介 0x03 SDN与OpenFlow的关系 0x04 基于OpenFlow的SDN网络工作原理 传统网络中网络设备的工作过程 基于OpenFlow的SDN网络中网络设备的工作过程 小结   0x05 流表与流水线处理 流表   0x06 OpenFlow的两种下发流表方式 Proactive Reactive   0x0">
+<meta name="twitter:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/OpenFlow版本变迁.png">
   
     <link rel="alternate" href="/atom.xml" title="Chentingz" type="application/atom+xml">
   
@@ -79,9 +92,7 @@
 
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-「OpenFlow」协议入门" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-「OpenFlow」协议入门" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/12/30/「OpenFlow」协议入门/" class="article-date">
   <time datetime="2019-12-29T16:00:00.000Z" itemprop="datePublished">2019-12-30</time>
@@ -98,8 +109,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/30/「OpenFlow」协议入门/">「OpenFlow」协议入门</a>
+    <h1 class="article-title" itemprop="name">
+      「OpenFlow」协议入门
     </h1>
   
 
@@ -136,14 +147,133 @@
 <li><a href="#packet-out消息">Packet-Out消息</a></li>
 </ul>
 </li>
-<li><a href="#0x0a-参考">0x0A 参考</a>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/30/「OpenFlow」协议入门/#more">Read More</a>
-          </p>
-        
+<li><a href="#0x0a-参考">0x0A 参考</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>参考OpenFlow v1.5.1协议及一些SDN相关书籍，解析OpenFlow中主要机制（如流表与流水线处理、组表、计量表等）的原理</p>
+<h2 id="0x02-OpenFlow简介"><a href="#0x02-OpenFlow简介" class="headerlink" title="0x02 OpenFlow简介"></a>0x02 OpenFlow简介</h2><p>OpenFlow由斯坦福大学Nick Mckeown教授提出，为SDN控制平面与数据平面之间提供通信接口标准，以实现SDN网络的转控分离架构。OpenFlow协议允许SDN控制器直接访问和操作数据平面中的网络设备，控制网络转发行为，数据平面采用基于流的方式进行转发。目前由ONF（Open Networking Foundation）负责推广和制定OpenFlow标准，截至本文发表时，最新版本为1.5.1</p>
+<p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow版本变迁.png" alt="OpenFlow版本变迁"></p>
+<h2 id="0x03-SDN与OpenFlow的关系"><a href="#0x03-SDN与OpenFlow的关系" class="headerlink" title="0x03 SDN与OpenFlow的关系"></a>0x03 SDN与OpenFlow的关系</h2><p>可以说OpenFlow是SDN中非常重要的技术，以至于许多人（包括笔者在内）在谈及SDN时就自然联想到OpenFlow。但SDN与OpenFlow不是划等号的关系，而是SDN包含OpenFlow的关系。实际上，SDN有多种实现方案，而OpenFlow在ONF SDN方案中充当南向接口。<br>南向接口的定义是控制平面与转发平面之间进行交互的协议，南向接口除了可以采用OpenFlow外，还有许多别的协议，如OF-CONFIG、OVSDB、NETCONF、PCEP、XMPP等等</p>
+<h2 id="0x04-基于OpenFlow的SDN网络工作原理"><a href="#0x04-基于OpenFlow的SDN网络工作原理" class="headerlink" title="0x04 基于OpenFlow的SDN网络工作原理"></a>0x04 基于OpenFlow的SDN网络工作原理</h2><h3 id="传统网络中网络设备的工作过程"><a href="#传统网络中网络设备的工作过程" class="headerlink" title="传统网络中网络设备的工作过程"></a>传统网络中网络设备的工作过程</h3><p>假设主机A向主机B发送IP数据包，且所有路由表和MAC地址表中都有该数据包的相应表项</p>
+<ul>
+<li>路由器之间<strong>运行分布式路由协</strong>议构建路由表。查表成功则<strong>基于目的IP地址转发</strong>；查表失败时，丢弃数据包</li>
+<li>交换机根据<strong>自学习算法</strong>构建MAC地址表。查表成功则<strong>基于目的MAC地址转发</strong>；查表失败时，除入端口外其余所有端口转发出去</li>
+</ul>
+<p><img src="/imgs/Introduction_to_OpenFlow/传统网络中网络设备的工作过程.png" alt="传统网络中网络设备的工作过程"></p>
+<h3 id="基于OpenFlow的SDN网络中网络设备的工作过程"><a href="#基于OpenFlow的SDN网络中网络设备的工作过程" class="headerlink" title="基于OpenFlow的SDN网络中网络设备的工作过程"></a>基于OpenFlow的SDN网络中网络设备的工作过程</h3><p>假设主机A向主机B发送IP数据包，且<strong>所有流表有该数据包相应表项</strong></p>
+<ul>
+<li>OpenFlow交换机查询流表来转发数据包，查表成功则<strong>基于匹配域（如目的IP地址+源IP地址）转发</strong>；查表失败时，则询问SDN控制器</li>
+<li>流表由SDN控制器来构建</li>
+</ul>
+<p><img src="/imgs/Introduction_to_OpenFlow/流表不空时，基于OpenFlow的SDN网络中网络设备的工作过程.png" alt="流表不空时，基于OpenFlow的SDN网络中网络设备的工作过程"></p>
+<p>假设主机A向主机B发送IP数据包，且<strong>OpenFlow交换机中流表为空</strong></p>
+<ol>
+<li>OF交换机接收IP数据包</li>
+<li>OF交换机解析数据包首部并查询流表，由于流表为空，不知道如何转发，因此需要询问控制器</li>
+<li>OF交换机向控制器发送Packet-In消息</li>
+<li>控制器为主机A发送给主机B的IP数据包计算路由</li>
+<li>控制器向OF交换机下发流表，使用FlowMod消息承载流表信息，OF交换机接收该消息后安装流表</li>
+<li>控制器向OF交换机发送Packet-Out消息，指示OF交换机按照刚安装好的流表转发IP数据包</li>
+<li>OF交换机收到Packet-Out消息后转发数据包<br><img src="/imgs/Introduction_to_OpenFlow/流表为空时，基于OpenFlow的SDN网络中网络设备的工作过程.png" alt="流表为空时，基于OpenFlow的SDN网络中网络设备的工作过程"></li>
+</ol>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ul>
+<li>路由计算、转发规则（流表）下发由控制器完成</li>
+<li>OF交换机只需要按照流表进行转发，查表失败时，通过Pacekt-In消息询问控制器  </li>
+</ul>
+<p><img src="/imgs/Introduction_to_OpenFlow/传统网络与OpenFlow网络中网络设备对比.png" alt="传统网络与OpenFlow网络中网络设备对比"></p>
+<h2 id="0x05-流表与流水线处理"><a href="#0x05-流表与流水线处理" class="headerlink" title="0x05 流表与流水线处理"></a>0x05 流表与流水线处理</h2><h4 id="流表"><a href="#流表" class="headerlink" title="流表"></a>流表</h4><p>流表是OpenFlow中最重要的一张表，在OpenFlow 1.1以后的版本中，每台交换机支持使用多张流表，构成流水线处理，从而完成对数据包更为复杂的处理。<br>流表的作用相当于L2的MAC表和L3的路由表，用于指导交换机对数据包的转发。流表由流表项组成，每条流表项的定义如图所示。  </p>
+<p><img src="/imgs/SDN学习笔记/流表项组成.png" alt="流表项组成">  </p>
+<p>流表项最为重要的两项为Match域和Instructions，当交换机收到一个数据包，将它包头解析后与流表中流表项Match域进行匹配，匹配成功则执行Instructions。因此流表可以简化理解为Match-Instrutions表。</p>
+<p>Instruction可以分为三大类，修改Action Set、修改流水线处理次序、其他</p>
+<p><img src="/imgs/SDN学习笔记/Instruction类型.png" alt="Instruction类型">  </p>
+<p>修改Action Set的指令：</p>
+<ul>
+<li>Apply-Actions：立即执行Action Set中的动作</li>
+<li>Clear-Actions：清空Action Set</li>
+<li>Write-Actions：写入一条动作到Action Set中</li>
+</ul>
+<p>修改流水线处理次序的指令：</p>
+<ul>
+<li>Goto-Table：跳转到指定的流表</li>
+</ul>
+<p>其他类指令：</p>
+<ul>
+<li>Write-Metadata：写入元数据</li>
+<li>Stat-trigger：若流统计数据超过阈值，生成一个事件通知控制器</li>
+</ul>
+<p>Action（动作）<br>Action就是对数据包的具体处理动作，可分为两类，一类是定义数据包的转发，另一类是修改数据包包头字段</p>
+<h2 id="0x06-OpenFlow的两种下发流表方式"><a href="#0x06-OpenFlow的两种下发流表方式" class="headerlink" title="0x06 OpenFlow的两种下发流表方式"></a>0x06 OpenFlow的两种下发流表方式</h2><h3 id="Proactive"><a href="#Proactive" class="headerlink" title="Proactive"></a>Proactive</h3><p>TODO</p>
+<h3 id="Reactive"><a href="#Reactive" class="headerlink" title="Reactive"></a>Reactive</h3><p>TODO</p>
+<h2 id="0x07-组表"><a href="#0x07-组表" class="headerlink" title="0x07 组表"></a>0x07 组表</h2><p>组表由组表项组成，动作的集合可以定义为一条组表项，然后流表项通过Instruction绑定一条组表项使用来实现复杂的转发语义。例如，有多条流需要转发到相同的目的地址，则可以将多条流表项绑定到同一组表项来实现转发，这样可以避免重复定义相同动作。</p>
+<p>Action Bukect类型：</p>
+<ul>
+<li>all</li>
+<li>select</li>
+<li>indirect</li>
+<li>fast failover</li>
+</ul>
+<h2 id="0x08-计量表"><a href="#0x08-计量表" class="headerlink" title="0x08 计量表"></a>0x08 计量表</h2><p>实现QoS功能<br>TODO</p>
+<h2 id="0x09-OpenFlow消息"><a href="#0x09-OpenFlow消息" class="headerlink" title="0x09 OpenFlow消息"></a>0x09 OpenFlow消息</h2><h3 id="种类"><a href="#种类" class="headerlink" title="种类"></a>种类</h3><p>消息按照发送的位置可分为三大类，每一大类中有若干子消息</p>
+<ul>
+<li><p>Controller-to-Switch消息：SDN控制器主动发送给OpenFlow交换机的消息</p>
+<ul>
+<li>Features：用于获取交换机特性</li>
+<li>Configuration：用来配置和查询交换机参数</li>
+<li>Modify-State：用来修改交换机状态信息（增删改流表项、组表项等）<ul>
+<li>Table-Mod消息</li>
+<li>Flow-Mod消息</li>
+<li>Group-Mod消息</li>
+<li>Port-Mod消息</li>
+<li>Meter-Mod消息</li>
+</ul>
+</li>
+<li>Read-State：用来读取交换机状态信息（当前配置、统计信息等）<ul>
+<li>Port-Stats消息</li>
+<li>Flow-Stats消息</li>
+<li>…</li>
+</ul>
+</li>
+<li>Packet-Out：用来指定交换机将数据包发送给指定端口</li>
+<li>Barrier：在不同消息之间使用，确保操作顺序执行</li>
+<li>Role Request：控制器用于询问或设置自身在交换机中的角色，常用于交换机与多控制器连接的场景</li>
+<li>Asynchronous-Configuration：控制器设置异步消息过滤器，只接收感兴趣的异步消息，一般在多控制器场景下使用</li>
+</ul>
+</li>
+<li><p>Asynchronous（异步）消息：OpenFlow交换机主动发送给SDN控制器的异步消息</p>
+<ul>
+<li>Packet-In：将数据包交给控制器处理，一般流表匹配中出现Table-Miss时或流表项显示指定将数据包交给控制器时，触发该消息</li>
+<li>Flow-Removed：通知控制器，流表项被删除；流表项超时或控制器删除流表项时触发该消息（需要在交换机配置时使能该消息）</li>
+<li>Port-status ：通知控制器，交换机端口状态发生变化</li>
+<li>Role-status：通知控制器，控制器在交换机中的角色发送变化</li>
+<li>Controller-Status：通知控制器，OpenFlow通道状态发生变化</li>
+<li>Flow-monitor：通知控制器，流表发送变化</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Symmetric（对称）消息：可由SDN控制器或OpenFlow交换机主动发送的消息<ul>
+<li>Hello：建立控制器与交换机之间的OpenFlow通道</li>
+<li>Echo：检测交换机与控制器之间的连接状态或测量OpenFlow通道的时延和带宽</li>
+<li>Error：用于通告错误</li>
+<li>Experiment：用于实验，测试新特性</li>
+</ul>
+</li>
+</ul>
+<p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow消息种类.png" alt="OpenFlow消息种类"></p>
+<h3 id="Flow-Mod消息"><a href="#Flow-Mod消息" class="headerlink" title="Flow-Mod消息"></a>Flow-Mod消息</h3><p>TODO</p>
+<h3 id="Packet-In消息"><a href="#Packet-In消息" class="headerlink" title="Packet-In消息"></a>Packet-In消息</h3><p>TODO</p>
+<h3 id="Packet-Out消息"><a href="#Packet-Out消息" class="headerlink" title="Packet-Out消息"></a>Packet-Out消息</h3><p>TODO</p>
+<h2 id="0x0A-参考"><a href="#0x0A-参考" class="headerlink" title="0x0A 参考"></a>0x0A 参考</h2><ul>
+<li><a href="https://www.opennetworking.org/wp-content/uploads/2014/10/openflow-switch-v1.5.1.pdf" target="_blank" rel="noopener">openflow-switch-v1.5.1</a></li>
+<li><a href="https://book.douban.com/subject/26715562/" target="_blank" rel="noopener">图解OpenFlow</a></li>
+<li><a href="https://www.sdnlab.com/resource/11950.html" target="_blank" rel="noopener">openflow协议基础入门-北邮-张健男</a></li>
+<li><a href="http://www.h3c.com/cn/d_201811/1131080_30005_0.htm" target="_blank" rel="noopener">Openflow协议详解</a></li>
+<li><a href="https://book.douban.com/subject/27004668/" target="_blank" rel="noopener">重构网络：SDN架构与实现</a></li>
+<li><a href="https://book.douban.com/subject/34462937/" target="_blank" rel="noopener">深度剖析软件定义网络(SDN)</a></li>
+</ul>
+
       
-    </li></ul></div>
+    </div>
     <footer class="article-footer">
       <a data-url="https://chentingz.github.io/2019/12/30/「OpenFlow」协议入门/" data-id="ck4rvkix300003gezvgh45g2y" class="article-share-link">Share</a>
       
@@ -151,333 +281,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/" class="article-date">
-  <time datetime="2019-12-26T16:00:00.000Z" itemprop="datePublished">2019-12-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/">「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别</a>
-    </h1>
+    <a href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-流表项操作与flow_mod消息">0x01 流表项操作与Flow_Mod消息</a></li>
-<li><a href="#0x02-流表项删除delete与delete_strict区别">0x02 流表项删除DELETE与DELETE_STRICT区别</a></li>
-<li><a href="#0x03-pox--mininet实验验证">0x03 POX + Mininet实验验证</a><ul>
-<li><a href="#实验环境">实验环境</a></li>
-<li><a href="#实验步骤">实验步骤</a><ul>
-<li><a href="#1启动pox">1.启动POX</a></li>
-<li><a href="#2运行mininet">2.运行Mininet</a></li>
-<li><a href="#3添加两条流表项">3.添加两条流表项</a></li>
-<li><a href="#4delete删除流表项">4.DELETE删除流表项</a></li>
-<li><a href="#5添加两条流表项">5.添加两条流表项</a></li>
-<li><a href="#6delete_strict删除流表项">6.DELETE_STRICT删除流表项</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#0x04-总结">0x04 总结</a></li>
-<li><a href="#0x05-参考">0x05 参考</a>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/#more">Read More</a>
-          </p>
-        
-      
-    </li></ul></div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/" data-id="ck4obvl1m0008goezclw2ehtk" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
-    <article id="post-「虚拟化」基于virsh实现虚拟机动态迁移" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/" class="article-date">
-  <time datetime="2019-12-10T16:00:00.000Z" itemprop="datePublished">2019-12-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/虚拟化/">虚拟化</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/">「虚拟化」基于virsh实现虚拟机动态迁移</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-虚拟机迁移方式">0x01 虚拟机迁移方式</a><ul>
-<li><a href="#静态迁移">静态迁移</a></li>
-<li><a href="#动态迁移">动态迁移</a><ul>
-<li><a href="#基于共享存储">基于共享存储</a></li>
-<li><a href="#基于本地存储">基于本地存储</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#0x02-虚拟机管理工具">0x02 虚拟机管理工具</a></li>
-<li><a href="#0x03-搭建kvm虚拟化环境">0x03 搭建KVM虚拟化环境</a></li>
-<li><a href="#0x04-基于virsh实现虚拟机动态迁移">0x04 基于virsh实现虚拟机动态迁移</a><ul>
-<li><a href="#实验环境">实验环境</a></li>
-<li><a href="#scp拷贝磁盘文件">SCP拷贝磁盘文件</a></li>
-<li><a href="#virsh动态迁移内存状态">virsh动态迁移内存状态</a></li>
-<li><a href="#virsh导出配置文件">virsh导出配置文件</a></li>
-<li><a href="#virsh定义并创建虚拟机">virsh定义并创建虚拟机</a></li>
-</ul>
-</li>
-<li><a href="#0x05-参考">0x05 参考</a></li>
-</ul>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/" data-id="ck4obvl1a0002goezsnl6qjgt" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-基于LSB算法实现信息隐藏" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/11/23/基于LSB算法实现信息隐藏/" class="article-date">
-  <time datetime="2019-11-22T16:00:00.000Z" itemprop="datePublished">2019-11-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Security/">Security</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/23/基于LSB算法实现信息隐藏/">基于LSB算法实现信息隐藏</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-问题描述">0x01 问题描述</a></li>
-<li><a href="#0x02-lsb算法原理">0x02 LSB算法原理</a></li>
-<li><a href="#0x03-lsb算法实现">0x03 LSB算法实现</a></li>
-<li><a href="#0x04-实验结果分析">0x04 实验结果分析</a><ul>
-<li><a href="#实验数据">实验数据</a></li>
-<li><a href="#实验结果">实验结果</a></li>
-</ul>
-</li>
-<li><a href="#0x05-健壮性分析">0x05 健壮性分析</a></li>
-<li><a href="#0x06-关键代码">0x06 关键代码</a><ul>
-<li><a href="#秘密信息嵌入">秘密信息嵌入</a></li>
-<li><a href="#秘密信息提取">秘密信息提取</a></li>
-<li><a href="#加噪处理">加噪处理</a>
-        
-          <p class="article-more-link">
-            <a href="/2019/11/23/基于LSB算法实现信息隐藏/#more">Read More</a>
-          </p>
-        
-      
-    </li></ul></li></ul></div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/11/23/基于LSB算法实现信息隐藏/" data-id="ck4obvl1o0009goeztbvo7p4u" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-「Floodlight x Mininet」从0开始搭建环境" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/" class="article-date">
-  <time datetime="2019-10-31T16:00:00.000Z" itemprop="datePublished">2019-11-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/">「Floodlight x Mininet」从0开始搭建环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>Floodlight是我在学习SDN过程中最早接触的控制器，相比较于ODL和ONOS，它从安装到导入IDE再到使用都十分容易，官方文档也写的很清楚，对新手极其友好。<br>趁着最近给别人搭建SDN实验环境的机会，总结一下在Ubuntu上如何搭建一个Floodlight x Mininet的SDN环境。<br>
-        
-          </p><p class="article-more-link">
-            <a href="/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/" data-id="ck4obvl170001goez9iqhpd1t" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-「ONOS x Mininet」从0开始搭建环境" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/10/28/「ONOS x Mininet」从0开始搭建环境/" class="article-date">
-  <time datetime="2019-10-27T16:00:00.000Z" itemprop="datePublished">2019-10-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/10/28/「ONOS x Mininet」从0开始搭建环境/">「ONOS x Mininet」从0开始搭建环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>这篇教程是基于ONOS Wiki上教程写的，Wiki上写的还是比较清楚的，但在实践过程中还是踩了一些坑，为了总结写下了这篇教程。<br>本教程的环境搭建是在分配有<strong>4核CPU、8G内存、运行ubuntu 18.04 desktop虚拟机</strong>上完成的。<br>建议搭建环境的主机至少分配4G内存，如果你使用其他版本的ubuntu，本教程也是适用的。<br>
-        
-          </p><p class="article-more-link">
-            <a href="/2019/10/28/「ONOS x Mininet」从0开始搭建环境/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/10/28/「ONOS x Mininet」从0开始搭建环境/" data-id="ck4obvl1l0007goezgcpoftbp" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/05/10/hello-world/" class="article-date">
-  <time datetime="2019-05-10T02:24:32.314Z" itemprop="datePublished">2019-05-10</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/10/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-        
-          <p class="article-more-link">
-            <a href="/2019/05/10/hello-world/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/05/10/hello-world/" data-id="ck4obvl100000goezkg3qxfz1" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
 
 </section>
         
