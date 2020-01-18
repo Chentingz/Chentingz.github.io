@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/流水线处理机制.png">
 <meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/多级流表实现对流的细粒度控制.png">
 <meta property="og:image" content="https://chentingz.github.io/imgs/Introduction_to_OpenFlow/OpenFlow消息种类.png">
-<meta property="og:updated_time" content="2019-12-30T09:17:50.428Z">
+<meta property="og:updated_time" content="2020-01-18T12:15:25.841Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="「OpenFlow」协议入门">
 <meta name="twitter:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 OpenFlow简介 0x03 SDN与OpenFlow的关系 0x04 基于OpenFlow的SDN网络工作原理 传统网络中网络设备的工作过程 基于OpenFlow的SDN网络中网络设备的工作过程 小结   0x05 流表与流水线处理 流 流表 匹配域 指令与动作 流表匹配过程 例子——使用单流表转发数据包   多级流表与流水线处理 例子">
@@ -169,10 +169,10 @@
 <li><a href="#0x0a-参考">0x0A 参考</a><a id="more"></a>
 </li>
 </ul>
-<h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>参考OpenFlow v1.5.1协议及一些SDN相关书籍，解析OpenFlow中主要机制（如流表与流水线处理、组表、计量表等）的原理</p>
+<h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>参考OpenFlow v1.5.1协议及一些SDN相关书籍，本文对OpenFlow中主要机制（如流表与流水线处理、组表、计量表等）的原理进行解析</p>
 <h2 id="0x02-OpenFlow简介"><a href="#0x02-OpenFlow简介" class="headerlink" title="0x02 OpenFlow简介"></a>0x02 OpenFlow简介</h2><p>OpenFlow由斯坦福大学Nick Mckeown教授提出，为SDN控制平面与数据平面之间提供通信接口标准，以实现SDN网络的转控分离架构。OpenFlow协议允许SDN控制器直接访问和操作数据平面中的网络设备，控制网络转发行为，数据平面采用基于流的方式进行转发。目前由ONF（Open Networking Foundation）负责推广和制定OpenFlow标准，截至本文发表时，最新版本为1.5.1</p>
 <p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow版本变迁.png" alt="OpenFlow版本变迁"></p>
-<h2 id="0x03-SDN与OpenFlow的关系"><a href="#0x03-SDN与OpenFlow的关系" class="headerlink" title="0x03 SDN与OpenFlow的关系"></a>0x03 SDN与OpenFlow的关系</h2><p>可以说OpenFlow是SDN中非常重要的技术，以至于许多人（包括笔者在内）在谈及SDN时就自然联想到OpenFlow。但SDN与OpenFlow不是划等号的关系，而是SDN包含OpenFlow的关系。实际上，SDN有多种实现方案，在ONF SDN方案中OpenFlow被用来当做南向接口。<br>南向接口的定义是控制平面与转发平面之间进行交互的协议，南向接口除了可以采用OpenFlow外，还有许多别的协议，如OF-CONFIG、OVSDB、NETCONF、PCEP、XMPP等等</p>
+<h2 id="0x03-SDN与OpenFlow的关系"><a href="#0x03-SDN与OpenFlow的关系" class="headerlink" title="0x03 SDN与OpenFlow的关系"></a>0x03 SDN与OpenFlow的关系</h2><p>可以说OpenFlow是SDN中非常重要的技术，以至于许多人（包括笔者在内）在谈及SDN时就自然联想到OpenFlow。但SDN与OpenFlow不是划等号的关系，而是SDN包含OpenFlow的关系。实际上，SDN有多种实现方案，在ONF SDN方案中OpenFlow充当南向接口的作用。<br>南向接口的定义是控制平面与数据平面之间进行交互的协议，南向接口除了可以采用OpenFlow外，还有许多别的协议，如OF-CONFIG、OVSDB、NETCONF、PCEP、XMPP等等</p>
 <h2 id="0x04-基于OpenFlow的SDN网络工作原理"><a href="#0x04-基于OpenFlow的SDN网络工作原理" class="headerlink" title="0x04 基于OpenFlow的SDN网络工作原理"></a>0x04 基于OpenFlow的SDN网络工作原理</h2><h3 id="传统网络中网络设备的工作过程"><a href="#传统网络中网络设备的工作过程" class="headerlink" title="传统网络中网络设备的工作过程"></a>传统网络中网络设备的工作过程</h3><p>假设主机A向主机B发送IP数据包，且所有路由表和MAC地址表中都有该数据包的相应表项</p>
 <ul>
 <li>路由器之间<strong>运行分布式路由协</strong>议构建路由表。查表成功则<strong>基于目的IP地址转发</strong>；查表失败时，丢弃数据包</li>
@@ -213,22 +213,23 @@
 <li>Cookie：控制器设置用来过滤被流统计、流修改和流删除操作请求影响的流表项</li>
 <li>标志（Flags）：用于流表项管理</li>
 </ul>
-<p>流表项最为重要的两项为匹配域和指令，当OpenFlow交换机收到一个数据包，将它包头解析后与流表中流表项匹配域进行匹配，匹配成功则执行指令。因此流表可以简化理解为（匹配域-指令）表。</p>
-<h4 id="匹配域"><a href="#匹配域" class="headerlink" title="匹配域"></a>匹配域</h4><p><img src="/imgs/Introduction_to_OpenFlow/匹配域.png" alt="匹配域"> </p>
+<p>流表项最为重要的两项为匹配域和指令，当OpenFlow交换机收到一个数据包，将它包头解析后与流表中流表项匹配域进行匹配，匹配成功则执行指令，因此流表可以简化理解为key-value形式的{匹配域-指令}表。</p>
+<h4 id="匹配域"><a href="#匹配域" class="headerlink" title="匹配域"></a>匹配域</h4><p>OpenFlow提供丰富的匹配域字段来定义不同粒度的流，如可以基于目的IP地址定义一条流，也可以根据源IP地址 + 目的IP地址来定义一条流<br><img src="/imgs/Introduction_to_OpenFlow/匹配域.png" alt="匹配域"> </p>
 <h4 id="指令与动作"><a href="#指令与动作" class="headerlink" title="指令与动作"></a>指令与动作</h4><p>指令（Instruction）是流表项匹配成功时的处理动作，分为三类</p>
 <ul>
-<li>更新动作集（Action Set）：添加、修改、清空动作集</li>
-<li>修改流水线处理次序：从序号低的表跳转到序号高的表</li>
-<li>其他：更新元数据以及设定触发器</li>
+<li>更新动作集（Action Set）：添加、修改、清空动作集，前面两个对应Write-Actions指令，清空动作集对应Clear-Actions指令</li>
+<li>修改流水线处理次序：从序号低的表跳转到序号高的表，对应Go-To-Table指令</li>
+<li>其他：更新元数据以及设定触发器，分别对应Write-Metadata指令和Stat-Trigger指令</li>
 </ul>
 <p><img src="/imgs/Introduction_to_OpenFlow/指令.png" alt="指令"> </p>
 <p>动作（Action）<br>Action是指对数据包的具体处理动作，可分为两类，一类是定义数据包的转发，另一类是修改数据包包头字段</p>
 <p><img src="/imgs/Introduction_to_OpenFlow/动作.png" alt="动作"> </p>
-<h4 id="流表匹配过程"><a href="#流表匹配过程" class="headerlink" title="流表匹配过程"></a>流表匹配过程</h4><ul>
-<li>匹配优先级最高的流表项，更新计数器，执行相应指令</li>
+<h4 id="流表匹配过程"><a href="#流表匹配过程" class="headerlink" title="流表匹配过程"></a>流表匹配过程</h4><p>解析数据包得到的首部字段，用于与流表项匹配域进行匹配。若一个数据包与多个流表项匹配成功，最后只与优先级最高的流表项进行匹配。</p>
+<ul>
+<li>匹配成功，更新计数器，执行相应指令</li>
 <li>匹配失败<ul>
-<li>流表中设置有Table-Miss流表项（优先级为0且匹配域为ANY），则最后会匹配该表项，执行相应指令（如丢弃、交由控制器处理、交给下一张流表处理）</li>
 <li>流表中没有设置Table-Miss流表项，匹配失败时，丢弃数据包</li>
+<li>流表中设置有Table-Miss流表项（优先级为0且匹配域为ANY），则最后会匹配该表项，执行相应指令（如丢弃、交由控制器处理、交给下一张流表处理）</li>
 </ul>
 </li>
 </ul>
@@ -243,14 +244,17 @@
 <h3 id="多级流表与流水线处理"><a href="#多级流表与流水线处理" class="headerlink" title="多级流表与流水线处理"></a>多级流表与流水线处理</h3><p>从OpenFlow1.1开始引入了多级流表和流水线处理机制，多级流表的出现一方面能够实现对数据包的复杂处理，另一方面又能有效降低单张流表的长度，提高查表效率。每张表都有序号，数据包通过跳转指令按照流表序号递增的方向在多个流表之间进行匹配，这样就构成了一条流水线，如下图所示，可见流水线处理是有方向的。流水线处理可以在OpenFlow交换机的入端口或出端口上进行，一般都在入端口出进行流水线处理。当流水线上只有一张流表时，就简化成单流表匹配的情况。</p>
 <p><img src="/imgs/Introduction_to_OpenFlow/流水线处理机制.png" alt="流水线处理机制"></p>
 <ul>
-<li>流水线处理开始：交换机接收数据包后，执行入端口的流水线处理，同时给该流水线分配一个动作集</li>
+<li>流水线处理开始：OpenFlow交换机接收数据包后，执行入端口的流水线处理，同时给该流水线分配一个动作集（Action Set）</li>
 <li>流表匹配<ul>
+<li>匹配成功<ul>
 <li>更新相应流表项的计数器，完成对该条流的统计工作</li>
 <li>执行流表项对应的指令</li>
 </ul>
 </li>
+<li>匹配失败：一个数据包可能在流表中与所有的流表项都不匹配或者匹配到Table-Miss流表项（优先级为0且匹配域为ANY），这两种情况都称为Table-Miss，对于前者，OpenFlow交换机将丢弃数据包；对于后者，OpenFlow交换机根据Table-Miss流表项，处理数据包（丢弃数据包、转发给控制器、交给下一个流表处理）</li>
+</ul>
+</li>
 <li>流水线处理结束：若当前不是执行跳转指令，则执行动作集中的所有动作，完成对数据包的处理，然后结束流水线处理</li>
-<li>Table-Miss：一个数据包可能在流表中与所有的流表项都不匹配，则根据的交换机的配置表，处理数据包（丢弃数据包、转发给控制器、交给下一个流表处理）</li>
 </ul>
 <h4 id="例子——多级流表实现对流的细粒度控制"><a href="#例子——多级流表实现对流的细粒度控制" class="headerlink" title="例子——多级流表实现对流的细粒度控制"></a>例子——多级流表实现对流的细粒度控制</h4><p>使用多级流表实现主机A发送到给主机B的所有TCP报文正常转发，UDP报文均丢弃，从而实现对不同流的细粒度控制<br>基本思想：</p>
 <ol>
@@ -259,9 +263,9 @@
 </ol>
 <p><img src="/imgs/Introduction_to_OpenFlow/多级流表实现对流的细粒度控制.png" alt="多级流表实现对流的细粒度控制"></p>
 <h2 id="0x06-OpenFlow的两种下发流表方式"><a href="#0x06-OpenFlow的两种下发流表方式" class="headerlink" title="0x06 OpenFlow的两种下发流表方式"></a>0x06 OpenFlow的两种下发流表方式</h2><p>根据流表的安装时机，可分为Proactive方式和Reactive方式</p>
-<h3 id="Proactive"><a href="#Proactive" class="headerlink" title="Proactive"></a>Proactive</h3><p>在数据包还未到达OpenFlow交换机前，SDN控制器就向OpenFlow交换机主动下发流表，这种方式相当于预置路由</p>
+<h3 id="Proactive"><a href="#Proactive" class="headerlink" title="Proactive"></a>Proactive</h3><p>在数据包还未到达OpenFlow交换机前，SDN控制器就向OpenFlow交换机主动下发流表，这种方式相当于<strong>预置路由</strong></p>
 <p>例如Table-Miss表项，就需要采用Proactive方式在SDN控制器与OpenFlow交换机建立连接后下发，显示的指定数据包查表失败时，OpenFlow交换机的处理方式</p>
-<h3 id="Reactive"><a href="#Reactive" class="headerlink" title="Reactive"></a>Reactive</h3><p>数据包到达OpenFlow交换机因查流表失败时，产生Packet-In消息询问SDN控制器，SDN控制器计算路由后下发流表到OpenFlow交换机，这种方式相当于按需下发路由，只有在有路由需求且查流表失败时，才会触发新的流表安装</p>
+<h3 id="Reactive"><a href="#Reactive" class="headerlink" title="Reactive"></a>Reactive</h3><p>数据包到达OpenFlow交换机因查流表失败时，产生Packet-In消息询问SDN控制器，SDN控制器计算路由后下发流表到OpenFlow交换机，这种方式相当于<strong>按需下发路由</strong>，只有在有路由需求且查流表失败时，才会触发新的流表安装</p>
 <h2 id="0x07-组表"><a href="#0x07-组表" class="headerlink" title="0x07 组表"></a>0x07 组表</h2><p>组表由组表项组成，动作的集合可以定义为一条组表项，然后流表项通过Instruction绑定一条组表项使用来实现复杂的转发语义。例如，有多条流需要转发到相同的目的地址，则可以将多条流表项绑定到同一组表项来实现转发，这样可以避免重复定义相同动作。</p>
 <p>Action Bukect类型：</p>
 <ul>
