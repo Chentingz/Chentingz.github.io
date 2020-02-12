@@ -5,15 +5,31 @@
   
 
   
-  <title>Chentingz</title>
+  <title>基于OpenFlow消息的网络测量方法 | Chentingz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Chentingz">
-<meta property="og:url" content="https://chentingz.github.io/index.html">
+  <meta name="description" content="0x00 目录 0x00 目录 0x01 前言 0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量 Port-Stats消息 测量丢包率 测量吞吐量   0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延 Packet-Out消息 Packet-In消息 测量拓扑 测量时延   0x04 参考">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于OpenFlow消息的网络测量方法">
+<meta property="og:url" content="https://chentingz.github.io/2020/02/12/基于OpenFlow消息的网络测量方法/index.html">
 <meta property="og:site_name" content="Chentingz">
+<meta property="og:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量 Port-Stats消息 测量丢包率 测量吞吐量   0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延 Packet-Out消息 Packet-In消息 测量拓扑 测量时延   0x04 参考">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中的Port-Stats-Request消息格式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中的Port-Stats-Reply消息格式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/基于OpenFlow统计消息测量链路丢包率原理图.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/链路丢包率计算公式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/交换机端口吞吐量计算公式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中Packet-Out消息格式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中Packet-In消息格式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/LLDP报文格式.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/基于Packet-Out和Packet-In消息测量拓扑原理图.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/基于Packet-Out和Packet-In消息测量时延原理图.png">
+<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/链路时延计算公式.png">
+<meta property="og:updated_time" content="2020-02-12T17:01:33.607Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chentingz">
+<meta name="twitter:title" content="基于OpenFlow消息的网络测量方法">
+<meta name="twitter:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量 Port-Stats消息 测量丢包率 测量吞吐量   0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延 Packet-Out消息 Packet-In消息 测量拓扑 测量时延   0x04 参考">
+<meta name="twitter:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中的Port-Stats-Request消息格式.png">
   
     <link rel="alternate" href="/atom.xml" title="Chentingz" type="application/atom+xml">
   
@@ -80,9 +96,7 @@
 
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-基于OpenFlow消息的网络测量方法" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-基于OpenFlow消息的网络测量方法" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/02/12/基于OpenFlow消息的网络测量方法/" class="article-date">
   <time datetime="2020-02-11T16:00:00.000Z" itemprop="datePublished">2020-02-12</time>
@@ -99,8 +113,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/02/12/基于OpenFlow消息的网络测量方法/">基于OpenFlow消息的网络测量方法</a>
+    <h1 class="article-title" itemprop="name">
+      基于OpenFlow消息的网络测量方法
     </h1>
   
 
@@ -124,14 +138,53 @@
 <li><a href="#测量时延">测量时延</a></li>
 </ul>
 </li>
-<li><a href="#0x04-参考">0x04 参考</a>
-        
-          <p class="article-more-link">
-            <a href="/2020/02/12/基于OpenFlow消息的网络测量方法/#more">Read More</a>
-          </p>
-        
+<li><a href="#0x04-参考">0x04 参考</a><a id="more"></a>
+</li>
+</ul>
+<h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>网络运行情况需要通过链路丢包率、时延、吞吐量等网络性能指标来体现。本文总结了SDN中，利用OpenFlow消息去测量网络拓扑、链路丢包率和时延、以及交换机端口吞吐量的方法。</p>
+<h2 id="0x02-基于OpenFlow的Port-Stats消息测量丢包率和吞吐量"><a href="#0x02-基于OpenFlow的Port-Stats消息测量丢包率和吞吐量" class="headerlink" title="0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量"></a>0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量</h2><p>OpenFlow交换机中维护了多种计数器，会对每张流表、每条流表项、每个物理端口、每条队列等进行信息统计。通过OpenFlow统计消息，SDN控制器可以周期性的查询并获取OpenFlow交换机的计数器统计信息，这些信息可用于测量丢包率和吞吐量，这种通过查询的测量方法属于被动测量。</p>
+<p>OpenFlow统计消息包含Port-Stats消息、Flow-Stats消息、Aggregate-Stats消息、Queue-Stats消息、Group-Stats消息、Meter-Stats消息和Table-Stats消息，这些消息可用于获取OpenFlow交换机中指定计数器的统计信息，如Port-Stats消息可以用于获取指定OpenFlow交换机物理端口的统计信息，Flow-Stats消息用于获取指定流表项的统计信息。</p>
+<h3 id="Port-Stats消息"><a href="#Port-Stats消息" class="headerlink" title="Port-Stats消息"></a>Port-Stats消息</h3><p>测量链路丢包率和端口吞吐量需要用到Port-Stats消息。</p>
+<p>Port-Stats消息具体有两种，一种是Port-Stats-Request消息，用于SDN控制器请求交换机端口统计信息，另一种是Port-Stats-Reply消息，交换机用它来应答SDN控制器，具体过程是交换机读取指定端口的计数器，获得端口的统计信息并将其封装在该消息中，然后将消息发送给SDN控制器。在OpenFlow 1.3中，Port-Stats-Request和Port-Stats-Reply消息格式如图1和图2所示，SDN控制器可以从Port-Stats-Reply消息中获取到交换机端口的接收/发送数据包个数（rx_packets/tx_packets），接收/发送字节数（rx_bytes/tx_bytes），丢弃数据包个数(rx_dropped/tx_dropped)，冲突次数（collisions），端口生存时间（duration_sec和duration_nsec）等统计信息，这些信息将用于计算链路丢包率、端口吞吐量。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中的Port-Stats-Request消息格式.png" alt="图1 OpenFlow1.3中的Port-Stats-Request消息格式"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中的Port-Stats-Reply消息格式.png" alt="图2 OpenFlow1.3中的Port-Stats-Reply消息格式"></p>
+<h3 id="测量丢包率"><a href="#测量丢包率" class="headerlink" title="测量丢包率"></a>测量丢包率</h3><p>丢包率是指一段时间内，数据包丢失数与总发送数的比值。</p>
+<p>如图3所示，测量S1到S2方向的链路丢包率时，SDN控制器需定期向交换机S1和S2发送Port-Stats-Request消息，来获取S1的1端口发送数据包个数tx_packetss1以及S2的2端口接收数据包个数rx_packetss2。通过每隔一段时间进行轮询，利用公式（1）可以计算得到S1到S2方向的链路在第i-1次和第i次查询时间段内的丢包率。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于OpenFlow统计消息测量链路丢包率原理图.png" alt="图3 基于OpenFlow统计消息测量链路丢包率原理图"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路丢包率计算公式.png" alt></p>
+<h3 id="测量吞吐量"><a href="#测量吞吐量" class="headerlink" title="测量吞吐量"></a>测量吞吐量</h3><p>吞吐量是指单位时间内传输无差错数据总量。</p>
+<p>测量交换机端口吞吐量时，依然按图3所示，SDN控制器将周期性发送Port-Stats-Request消息到指定交换机，并从交换机的Port-Stats-Reply消息中获取接收/发送字节数（rx_bytes/tx_bytes）和端口生存时间（duration_sec和duration_nsec），利用公式（2）和（3）可以计算第i-1次和第i次查询时间段内的吞吐量大小。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\交换机端口吞吐量计算公式.png" alt></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注：交换机的一个物理端口实际上是由一个TX端口和一个RX端口组成，分别用于发送和接收数据，因此端口吞吐量实际指的是TX端口的发送吞吐量，以及RX端口的接收吞吐量。例如，计算发送吞吐量，则公式2中的分子为tx_bytes(i) - tx_bytes(i-1)。</span><br></pre></td></tr></table></figure>
+<h2 id="0x03-基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延"><a href="#0x03-基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延" class="headerlink" title="0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延"></a>0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延</h2><p>根据主动测量的思想，可由SDN控制器生成探测数据包并下发至指定的交换机，当测量过程结束时，被测交换机需要触发相应机制将探测包返回控制器，由控制器分析并计算得到测量结果。由于SDN网络中交换机处理数据包的规则，即流表项，需要由控制器指定，因此实现主动测量的关键在于控制器如何生成和回收探测数据包，以及如何制定探测包的转发规则。</p>
+<h3 id="Packet-Out消息"><a href="#Packet-Out消息" class="headerlink" title="Packet-Out消息"></a>Packet-Out消息</h3><p>OpenFlow协议规定了控制器和交换机相互发送数据包的消息类型。由控制器发起的Controller-to-Switch消息类型中，包含一类Packet-Out消息，其格式如图4所示。控制器能够自定义该消息中携带的数据包内容，以及交换机收到Packet-Out消息后的行为。控制器通过在Packet-Out消息中封装探测数据包并下发至指定交换机，就能够发起主动测量任务。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中Packet-Out消息格式.png" alt="图4 OpenFlow1.3中Packet-Out消息格式"></p>
+<h3 id="Packet-In消息"><a href="#Packet-In消息" class="headerlink" title="Packet-In消息"></a>Packet-In消息</h3><p>在由交换机发起的Asynchronous消息类型中，包含Packet-In消息，其格式如图5所示，该消息与Packet-Out类似，可以封装交换机上的指定数据包并发送至控制器做进一步处理。当交换机中的流表项无法匹配某个数据包时，会默认触发Packet-In消息。由于探测数据包通常与网络中的正常流量有所不同，因此基于OpenFlow的SDN主动测量可以利用Packet-In消息机制实现探测包的回收。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中Packet-In消息格式.png" alt="图5 OpenFlow1.3中Packet-In消息格式"></p>
+<h3 id="测量拓扑"><a href="#测量拓扑" class="headerlink" title="测量拓扑"></a>测量拓扑</h3><p>拓扑测量负责对网络中各个设备之间的链路关系进行定期的检测，并维护完整的网络拓扑，是控制器和上层应用实现对整个网络资源进行统一调度和管理的基础。在传统IP网络中，拓扑测量采用链路发现协议(LLDP)。LLDP报文格式如图6所示，其中包含了Chassis ID TLV(设备标示符)，Port ID TLV(端口标示符)等字段，每个网络节点将自己和相邻设备的链路信息发送给其他节点，最终实现在各个网络设备上分散地测量链路信息。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\LLDP报文格式.png" alt="图6 LLDP报文格式"></p>
+<p>目前，OpenFlow的拓扑发现协议(OFDP)依然沿用了LLDP协议，基于OpenFlow的Packet-Out和Packet-In消息测量拓扑，其采用了主动测量方式，原理如图7所示，基本思想如下：</p>
+<p>（1）控制器构造包含LLDP数据包的Packet-Out消息下发至交换机S1，并指定从某端口转发至交换机S2，其中LLDP数据包中的Chassis ID TLV字段设置为交换机S1的Datapath ID，Port ID TLV字段设置为交换机目标转发端口。</p>
+<p>（2）S2接收到LLDP数据包，触发Packet-In消息，将LLDP数据包发回控制器。</p>
+<p>（3）控制器通过分析LLDP数据包，可以得到LLDP数据包在交换机S1上的发出端口和在交换机S2上的接收端口存在链接关系，从而获得一条链路信息。通过这种方式，控制器可以实现对整个网络的拓扑测量，发送的Packet-Out信息数量与网络中所有交换机活动端口的数量有关。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于Packet-Out和Packet-In消息测量拓扑原理图.png" alt="图7 基于Packet-Out和Packet-In消息测量拓扑原理图"></p>
+<h3 id="测量时延"><a href="#测量时延" class="headerlink" title="测量时延"></a>测量时延</h3><p>交换机之间传输时延是表明链路运行状态的重要参数。由于OpenFlow交换机不具备在正常传输的报文中打时间戳的功能，无法采用传统IP网络中的被动测量方式。因此，需要利用主动测量思想，在交换机之间生成并发送探测包。如图8所示，控制器的测量目标是交换机S1到交换机S2的时延，则控制器将探测包发送至S1，并下发规则指定S1将探测包发送至S2。S2接收到探测包后，由于没有对应的转发规则，会将探测包返回控制器，控制器则会计算出探测包在路径中传输的总时间。由于控制器和交换机之间的通信也存在时延，因此控制器还需要发送通信消息，获得控制器和各个交换机之间的消息往返时间，通过计算差值，获得最终的链路时延结果。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于Packet-Out和Packet-In消息测量时延原理图.png" alt="图8 基于Packet-Out和Packet-In消息测量时延原理图"></p>
+<p>因此，测量时延的详细步骤如下：</p>
+<p>(1)获得探测包传输时间Ttravel：控制器生成探测数据包，其中包含交换机S1的目标转发端口和生成探测数据包时的时间戳，用来记录探测包的转发路径和发送探测包的时间。然后，控制器通过Packet-Out消息封装探测数据包，并下发至交换机S1，并从指定端口将探测包转发至S2。S2接收到数据包后，由于没有匹配的流表项，会触发Packet-In消息，将探测包封装并返回控制器。控制器通过对探测包的字段进行分析，可以得到探测包在“控制器一S1—S2一控制器”路径上的传输时间Ttravel。</p>
+<p>(2)获得控制器和交换机的往返时间RTT：得到Ttravel后，还需要知道数据包控制器和交换机往返传输时间，从而计算得到控制器下发探测包以及交换机返回探测包的时延。根据OpenFlow协议，控制器生成Echo Request消息分别下发交换机S1和S2，并记录收到Echo Reply消息的时间，得到控制器和交换机的往返传输时间RTT</p>
+<p> (3)计算交换机链路时延：根据上述测量结果，通过公式(4)计算得到交换机S1和S2之间的时延Tdelay。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路时延计算公式.png" alt></p>
+<h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><ul>
+<li><a href="http://d.old.wanfangdata.com.cn/Thesis/Y3141829" target="_blank" rel="noopener">刘一童. SDN网络测量系统的研究与实现[D]. 2016.</a></li>
+<li><a href="http://www.cnki.com.cn/Article/CJFDTotal-PZKX201803005.htm" target="_blank" rel="noopener">张恒, 蔡志平, 李阳. SDN网络测量技术综述[J]. 中国科学:信息科学, 2018, v.48(03):65-86.</a></li>
+<li><a href="https://www.sdnlab.com/15733.html" target="_blank" rel="noopener">基于SDN的网络状态测量 / 北邮李呈</a></li>
+<li><a href="https://book.douban.com/subject/26715562/" target="_blank" rel="noopener">图解OpenFlow</a></li>
+<li><a href="https://www.opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf" target="_blank" rel="noopener">openflow-spec-v1.3.0</a></li>
+</ul>
+
       
-    </li></ul></div>
+    </div>
     <footer class="article-footer">
       <a data-url="https://chentingz.github.io/2020/02/12/基于OpenFlow消息的网络测量方法/" data-id="ck6jk6kwj0007ekezccq67mru" class="article-share-link">Share</a>
       
@@ -139,419 +192,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-「OpenFlow」协议入门" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/12/30/「OpenFlow」协议入门/" class="article-date">
-  <time datetime="2019-12-29T16:00:00.000Z" itemprop="datePublished">2019-12-30</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/30/「OpenFlow」协议入门/">「OpenFlow」协议入门</a>
-    </h1>
+    <a href="/2019/12/30/「OpenFlow」协议入门/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">「OpenFlow」协议入门</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-前言">0x01 前言</a></li>
-<li><a href="#0x02-openflow简介">0x02 OpenFlow简介</a></li>
-<li><a href="#0x03-sdn与openflow的关系">0x03 SDN与OpenFlow的关系</a></li>
-<li><a href="#0x04-基于openflow的sdn网络工作原理">0x04 基于OpenFlow的SDN网络工作原理</a><ul>
-<li><a href="#传统网络中网络设备的工作过程">传统网络中网络设备的工作过程</a></li>
-<li><a href="#基于openflow的sdn网络中网络设备的工作过程">基于OpenFlow的SDN网络中网络设备的工作过程</a></li>
-<li><a href="#小结">小结</a></li>
-</ul>
-</li>
-<li><a href="#0x05-流表与流水线处理">0x05 流表与流水线处理</a><ul>
-<li><a href="#流">流</a></li>
-<li><a href="#流表">流表</a><ul>
-<li><a href="#匹配域">匹配域</a></li>
-<li><a href="#指令与动作">指令与动作</a></li>
-<li><a href="#流表匹配过程">流表匹配过程</a></li>
-<li><a href="#例子使用单流表转发数据包">例子——使用单流表转发数据包</a></li>
-</ul>
-</li>
-<li><a href="#多级流表与流水线处理">多级流表与流水线处理</a><ul>
-<li><a href="#例子多级流表实现对流的细粒度控制">例子——多级流表实现对流的细粒度控制</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#0x06-openflow的两种下发流表方式">0x06 OpenFlow的两种下发流表方式</a><ul>
-<li><a href="#proactive">Proactive</a></li>
-<li><a href="#reactive">Reactive</a></li>
-</ul>
-</li>
-<li><a href="#0x07-组表">0x07 组表</a></li>
-<li><a href="#0x08-计量表">0x08 计量表</a></li>
-<li><a href="#0x09-openflow消息">0x09 OpenFlow消息</a><ul>
-<li><a href="#种类">种类</a></li>
-<li><a href="#flow-mod消息">Flow-Mod消息</a></li>
-<li><a href="#packet-in消息">Packet-In消息</a></li>
-<li><a href="#packet-out消息">Packet-Out消息</a></li>
-<li><a href="#port-stats消息">Port-Stats消息</a></li>
-</ul>
-</li>
-<li><a href="#0x0a-参考">0x0A 参考</a>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/30/「OpenFlow」协议入门/#more">Read More</a>
-          </p>
-        
-      
-    </li></ul></div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/12/30/「OpenFlow」协议入门/" data-id="ck6jk6kwl0009ekezjw2wl3v6" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
-    <article id="post-「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/" class="article-date">
-  <time datetime="2019-12-26T16:00:00.000Z" itemprop="datePublished">2019-12-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/">「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-流表项操作与flow_mod消息">0x01 流表项操作与Flow_Mod消息</a></li>
-<li><a href="#0x02-流表项删除delete与delete_strict区别">0x02 流表项删除DELETE与DELETE_STRICT区别</a></li>
-<li><a href="#0x03-pox--mininet实验验证">0x03 POX + Mininet实验验证</a><ul>
-<li><a href="#实验环境">实验环境</a></li>
-<li><a href="#实验步骤">实验步骤</a><ul>
-<li><a href="#1启动pox">1.启动POX</a></li>
-<li><a href="#2运行mininet">2.运行Mininet</a></li>
-<li><a href="#3添加两条流表项">3.添加两条流表项</a></li>
-<li><a href="#4delete删除流表项">4.DELETE删除流表项</a></li>
-<li><a href="#5添加两条流表项">5.添加两条流表项</a></li>
-<li><a href="#6delete_strict删除流表项">6.DELETE_STRICT删除流表项</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#0x04-总结">0x04 总结</a></li>
-<li><a href="#0x05-参考">0x05 参考</a>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/#more">Read More</a>
-          </p>
-        
-      
-    </li></ul></div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/12/27/「OpenFlow」流表项删除DELETE与DELETE_STRICT的区别/" data-id="ck6jk6kwm000aekezhxc2n1gc" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-「虚拟化」基于virsh实现虚拟机动态迁移" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/" class="article-date">
-  <time datetime="2019-12-10T16:00:00.000Z" itemprop="datePublished">2019-12-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/虚拟化/">虚拟化</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/">「虚拟化」基于virsh实现虚拟机动态迁移</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-虚拟机迁移方式">0x01 虚拟机迁移方式</a><ul>
-<li><a href="#静态迁移">静态迁移</a></li>
-<li><a href="#动态迁移">动态迁移</a><ul>
-<li><a href="#基于共享存储">基于共享存储</a></li>
-<li><a href="#基于本地存储">基于本地存储</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#0x02-虚拟机管理工具">0x02 虚拟机管理工具</a></li>
-<li><a href="#0x03-搭建kvm虚拟化环境">0x03 搭建KVM虚拟化环境</a></li>
-<li><a href="#0x04-基于virsh实现虚拟机动态迁移">0x04 基于virsh实现虚拟机动态迁移</a><ul>
-<li><a href="#实验环境">实验环境</a></li>
-<li><a href="#scp拷贝磁盘文件">SCP拷贝磁盘文件</a></li>
-<li><a href="#virsh动态迁移内存状态">virsh动态迁移内存状态</a></li>
-<li><a href="#virsh导出配置文件">virsh导出配置文件</a></li>
-<li><a href="#virsh定义并创建虚拟机">virsh定义并创建虚拟机</a></li>
-</ul>
-</li>
-<li><a href="#0x05-参考">0x05 参考</a></li>
-</ul>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/12/11/「虚拟化」基于virsh实现虚拟机动态迁移/" data-id="ck6jk6kw70002ekezbc3afiww" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-基于LSB算法实现信息隐藏" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/11/23/基于LSB算法实现信息隐藏/" class="article-date">
-  <time datetime="2019-11-22T16:00:00.000Z" itemprop="datePublished">2019-11-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Security/">Security</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/23/基于LSB算法实现信息隐藏/">基于LSB算法实现信息隐藏</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
-<li><a href="#0x00-目录">0x00 目录</a></li>
-<li><a href="#0x01-问题描述">0x01 问题描述</a></li>
-<li><a href="#0x02-lsb算法原理">0x02 LSB算法原理</a></li>
-<li><a href="#0x03-lsb算法实现">0x03 LSB算法实现</a></li>
-<li><a href="#0x04-实验结果分析">0x04 实验结果分析</a><ul>
-<li><a href="#实验数据">实验数据</a></li>
-<li><a href="#实验结果">实验结果</a></li>
-</ul>
-</li>
-<li><a href="#0x05-健壮性分析">0x05 健壮性分析</a></li>
-<li><a href="#0x06-关键代码">0x06 关键代码</a><ul>
-<li><a href="#秘密信息嵌入">秘密信息嵌入</a></li>
-<li><a href="#秘密信息提取">秘密信息提取</a></li>
-<li><a href="#加噪处理">加噪处理</a>
-        
-          <p class="article-more-link">
-            <a href="/2019/11/23/基于LSB算法实现信息隐藏/#more">Read More</a>
-          </p>
-        
-      
-    </li></ul></li></ul></div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/11/23/基于LSB算法实现信息隐藏/" data-id="ck6jk6kxe000fekezrdqrjxao" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-「Floodlight x Mininet」从0开始搭建环境" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/" class="article-date">
-  <time datetime="2019-10-31T16:00:00.000Z" itemprop="datePublished">2019-11-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/">「Floodlight x Mininet」从0开始搭建环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>Floodlight是我在学习SDN过程中最早接触的控制器，相比较于ODL和ONOS，它从安装到导入IDE再到使用都十分容易，官方文档也写的很清楚，对新手极其友好。<br>趁着最近给别人搭建SDN实验环境的机会，总结一下在Ubuntu上如何搭建一个Floodlight x Mininet的SDN环境。<br>
-        
-          </p><p class="article-more-link">
-            <a href="/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/11/01/「Floodlight x Mininet」从0开始搭建环境/" data-id="ck6jk6kw30001ekezumnmc46t" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-「ONOS x Mininet」从0开始搭建环境" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/10/28/「ONOS x Mininet」从0开始搭建环境/" class="article-date">
-  <time datetime="2019-10-27T16:00:00.000Z" itemprop="datePublished">2019-10-28</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/10/28/「ONOS x Mininet」从0开始搭建环境/">「ONOS x Mininet」从0开始搭建环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>这篇教程是基于ONOS Wiki上教程写的，Wiki上写的还是比较清楚的，但在实践过程中还是踩了一些坑，为了总结写下了这篇教程。<br>本教程的环境搭建是在分配有<strong>4核CPU、8G内存、运行ubuntu 18.04 desktop虚拟机</strong>上完成的。<br>建议搭建环境的主机至少分配4G内存，如果你使用其他版本的ubuntu，本教程也是适用的。<br>
-        
-          </p><p class="article-more-link">
-            <a href="/2019/10/28/「ONOS x Mininet」从0开始搭建环境/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/10/28/「ONOS x Mininet」从0开始搭建环境/" data-id="ck6jk6kwk0008ekezcr5jaurk" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/05/10/hello-world/" class="article-date">
-  <time datetime="2019-05-10T02:24:32.314Z" itemprop="datePublished">2019-05-10</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/10/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-        
-          <p class="article-more-link">
-            <a href="/2019/05/10/hello-world/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2019/05/10/hello-world/" data-id="ck6jk6kvy0000ekezoeb8hdww" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
 
 </section>
         
