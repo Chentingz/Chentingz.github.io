@@ -1,128 +1,148 @@
 <!DOCTYPE html>
-<html>
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="utf-8">
-  
+<html lang="zh-CN">
 
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>基于OpenFlow消息的网络测量方法 | Chentingz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="0x00 目录 0x00 目录 0x01 前言 0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量 Port-Stats消息 测量丢包率 测量吞吐量   0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延 Packet-Out消息 Packet-In消息 测量拓扑 测量时延   0x04 参考">
-<meta property="og:type" content="article">
-<meta property="og:title" content="基于OpenFlow消息的网络测量方法">
-<meta property="og:url" content="https://chentingz.github.io/2020/02/12/基于OpenFlow消息的网络测量方法/index.html">
-<meta property="og:site_name" content="Chentingz">
-<meta property="og:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量 Port-Stats消息 测量丢包率 测量吞吐量   0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延 Packet-Out消息 Packet-In消息 测量拓扑 测量时延   0x04 参考">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中的Port-Stats-Request消息格式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中的Port-Stats-Reply消息格式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/基于OpenFlow统计消息测量链路丢包率原理图.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/链路丢包率计算公式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/交换机端口吞吐量计算公式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中Packet-Out消息格式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中Packet-In消息格式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/LLDP报文格式.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/基于Packet-Out和Packet-In消息测量拓扑原理图.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/基于Packet-Out和Packet-In消息测量时延原理图.png">
-<meta property="og:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/链路时延计算公式.png">
-<meta property="og:updated_time" content="2020-02-12T17:01:33.607Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="基于OpenFlow消息的网络测量方法">
-<meta name="twitter:description" content="0x00 目录 0x00 目录 0x01 前言 0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量 Port-Stats消息 测量丢包率 测量吞吐量   0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延 Packet-Out消息 Packet-In消息 测量拓扑 测量时延   0x04 参考">
-<meta name="twitter:image" content="https://chentingz.github.io/imgs/Network_Measurement_Based_On_OpenFlow_Message/OpenFlow1.3中的Port-Stats-Request消息格式.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Chentingz" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
-  <meta name="google-site-verification" content="xtw4ApFY-ib0wFqvm11UPm6PGV1l1Ow7Dbk5Emqmee4">
+  <meta name="description" content>
+  <meta name="author" content="Chentingz">
+  <meta name="keywords" content>
+  <title>基于OpenFlow消息的网络测量方法 - Chentingz</title>
+
+  <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/lib/mdbootstrap/css/mdb.min.css">
+<link rel="stylesheet" href="/lib/github-markdown/github-markdown.min.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+  <link rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link rel="stylesheet" href="/lib/fancybox/jquery.fancybox.min.css">
+
+
 </head>
-</html>
+
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <!--<div id="banner"></div>-->
-	<div id="header-outer" class="outer">
-		<div id="header-title">
-			<a href="/" id="logo">Chentingz</a>
-		</div>
-		<div id="menu">
-			<a href="/archives" id="menu-archives">文章</a>
-		</div>
-		<div id="avatar">
-			<a href="https://github.com/chentingz"><img src="https://avatars0.githubusercontent.com/u/28257111?s=460&v=4" width="32" height="32"></a>
-		</div>
-		
-		<!-- 百度搜索 -->
-		<!--
-		<div id="search-btn">
-		</div>	
-		<div id="search-form-wrap">
-			<form action="http://www.baidu.com/s" method="get" accept-charset="UTF-8" target="_blank" class="search-form"><input type="search" name="q1" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="q6" value="chentingz.github.io"></form>
-		</div>
-		-->
-		
-		<div id="search-btn">
-			
-			
-				<a href="javascript:;" class="popup-trigger nav-icon" id="nav-search-btn"></a>
-			
-		</div>
-	</div>
-	
-		<div class="local-search-inner"><div class="popup search-popup local-search-popup">
-  <div class="local-search-header clearfix">
-    <span class="search-icon">
-	  <div id="icon-search"></div>
-    </span>
-    <span class="popup-btn-close">
-	  <div id="icon-close"></div>
-    </span>
-    <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="Type here..." spellcheck="false" type="text" id="local-search-input">
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">分类</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
     </div>
   </div>
-  <div id="local-search-result"></div>
-</div>
+</nav>
 
-</div>
-	
+    <div class="view intro-2" id="background" false
+         style="background: url('/img/default.png')no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
 
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-基于OpenFlow消息的网络测量方法" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/02/12/基于OpenFlow消息的网络测量方法/" class="article-date">
-  <time datetime="2020-02-11T16:00:00.000Z" itemprop="datePublished">2020-02-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/SDN/">SDN</a>
-  </div>
+            
+              <br>
+              
+                <p class="mt-3">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>&nbsp;
+                  2020-02-12 12:00 凌晨
+                </p>
+              
 
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      基于OpenFlow消息的网络测量方法
-    </h1>
-  
+              <p>
+                
+                  
+                  &nbsp;<i class="far fa-chart-bar"></i>
+                  <span class="post-count">
+                    2.5k 字
+                  </span>&nbsp;
+                
 
-      </header>
+                
+
+                
+                  <!-- 不蒜子统计文章PV -->
+                  
+                  &nbsp;<i class="far fa-eye" aria-hidden="true"></i>&nbsp;
+                  <span id="busuanzi_container_page_pv">
+                    <span id="busuanzi_value_page_pv"></span> 次
+                  </span>&nbsp;
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
     
-    <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="py-5 z-depth-3" id="board">
+        <div class="post-content mx-auto" id="post">
+          <div class="markdown-body">
+            <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
 <li><a href="#0x00-目录">0x00 目录</a></li>
 <li><a href="#0x01-前言">0x01 前言</a></li>
 <li><a href="#0x02-基于openflow的port-stats消息测量丢包率和吞吐量">0x02 基于OpenFlow的Port-Stats消息测量丢包率和吞吐量</a><ul>
@@ -146,35 +166,35 @@
 <p>OpenFlow统计消息包含Port-Stats消息、Flow-Stats消息、Aggregate-Stats消息、Queue-Stats消息、Group-Stats消息、Meter-Stats消息和Table-Stats消息，这些消息可用于获取OpenFlow交换机中指定计数器的统计信息，如Port-Stats消息可以用于获取指定OpenFlow交换机物理端口的统计信息，Flow-Stats消息用于获取指定流表项的统计信息。</p>
 <h3 id="Port-Stats消息"><a href="#Port-Stats消息" class="headerlink" title="Port-Stats消息"></a>Port-Stats消息</h3><p>测量链路丢包率和端口吞吐量需要用到Port-Stats消息。</p>
 <p>Port-Stats消息具体有两种，一种是Port-Stats-Request消息，用于SDN控制器请求交换机端口统计信息，另一种是Port-Stats-Reply消息，交换机用它来应答SDN控制器，具体过程是交换机读取指定端口的计数器，获得端口的统计信息并将其封装在该消息中，然后将消息发送给SDN控制器。在OpenFlow 1.3中，Port-Stats-Request和Port-Stats-Reply消息格式如图1和图2所示，SDN控制器可以从Port-Stats-Reply消息中获取到交换机端口的接收/发送数据包个数（rx_packets/tx_packets），接收/发送字节数（rx_bytes/tx_bytes），丢弃数据包个数(rx_dropped/tx_dropped)，冲突次数（collisions），端口生存时间（duration_sec和duration_nsec）等统计信息，这些信息将用于计算链路丢包率、端口吞吐量。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中的Port-Stats-Request消息格式.png" alt="图1 OpenFlow1.3中的Port-Stats-Request消息格式"></p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中的Port-Stats-Reply消息格式.png" alt="图2 OpenFlow1.3中的Port-Stats-Reply消息格式"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中的Port-Stats-Request消息格式.png" srcset="/img/loading.gif" alt="图1 OpenFlow1.3中的Port-Stats-Request消息格式"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中的Port-Stats-Reply消息格式.png" srcset="/img/loading.gif" alt="图2 OpenFlow1.3中的Port-Stats-Reply消息格式"></p>
 <h3 id="测量丢包率"><a href="#测量丢包率" class="headerlink" title="测量丢包率"></a>测量丢包率</h3><p>丢包率是指一段时间内，数据包丢失数与总发送数的比值。</p>
 <p>如图3所示，测量S1到S2方向的链路丢包率时，SDN控制器需定期向交换机S1和S2发送Port-Stats-Request消息，来获取S1的1端口发送数据包个数tx_packetss1以及S2的2端口接收数据包个数rx_packetss2。通过每隔一段时间进行轮询，利用公式（1）可以计算得到S1到S2方向的链路在第i-1次和第i次查询时间段内的丢包率。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于OpenFlow统计消息测量链路丢包率原理图.png" alt="图3 基于OpenFlow统计消息测量链路丢包率原理图"></p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路丢包率计算公式.png" alt></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于OpenFlow统计消息测量链路丢包率原理图.png" srcset="/img/loading.gif" alt="图3 基于OpenFlow统计消息测量链路丢包率原理图"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路丢包率计算公式.png" srcset="/img/loading.gif" alt></p>
 <h3 id="测量吞吐量"><a href="#测量吞吐量" class="headerlink" title="测量吞吐量"></a>测量吞吐量</h3><p>吞吐量是指单位时间内传输无差错数据总量。</p>
 <p>测量交换机端口吞吐量时，依然按图3所示，SDN控制器将周期性发送Port-Stats-Request消息到指定交换机，并从交换机的Port-Stats-Reply消息中获取接收/发送字节数（rx_bytes/tx_bytes）和端口生存时间（duration_sec和duration_nsec），利用公式（2）和（3）可以计算第i-1次和第i次查询时间段内的吞吐量大小。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\交换机端口吞吐量计算公式.png" alt></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注：交换机的一个物理端口实际上是由一个TX端口和一个RX端口组成，分别用于发送和接收数据，因此端口吞吐量实际指的是TX端口的发送吞吐量，以及RX端口的接收吞吐量。例如，计算发送吞吐量，则公式2中的分子为tx_bytes(i) - tx_bytes(i-1)。</span><br></pre></td></tr></table></figure>
-<h2 id="0x03-基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延"><a href="#0x03-基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延" class="headerlink" title="0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延"></a>0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延</h2><p>根据主动测量的思想，可由SDN控制器生成探测数据包并下发至指定的交换机，当测量过程结束时，被测交换机需要触发相应机制将探测包返回控制器，由控制器分析并计算得到测量结果。由于SDN网络中交换机处理数据包的规则，即流表项，需要由控制器指定，因此实现主动测量的关键在于控制器如何生成和回收探测数据包，以及如何制定探测包的转发规则。</p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\交换机端口吞吐量计算公式.png" srcset="/img/loading.gif" alt></p>
+<pre><code>注：交换机的一个物理端口实际上是由一个TX端口和一个RX端口组成，分别用于发送和接收数据，因此端口吞吐量实际指的是TX端口的发送吞吐量，以及RX端口的接收吞吐量。例如，计算发送吞吐量，则公式2中的分子为tx_bytes(i) - tx_bytes(i-1)。
+</code></pre><h2 id="0x03-基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延"><a href="#0x03-基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延" class="headerlink" title="0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延"></a>0x03 基于OpenFlow的Packet-Out消息和Packet-In消息测量拓扑和时延</h2><p>根据主动测量的思想，可由SDN控制器生成探测数据包并下发至指定的交换机，当测量过程结束时，被测交换机需要触发相应机制将探测包返回控制器，由控制器分析并计算得到测量结果。由于SDN网络中交换机处理数据包的规则，即流表项，需要由控制器指定，因此实现主动测量的关键在于控制器如何生成和回收探测数据包，以及如何制定探测包的转发规则。</p>
 <h3 id="Packet-Out消息"><a href="#Packet-Out消息" class="headerlink" title="Packet-Out消息"></a>Packet-Out消息</h3><p>OpenFlow协议规定了控制器和交换机相互发送数据包的消息类型。由控制器发起的Controller-to-Switch消息类型中，包含一类Packet-Out消息，其格式如图4所示。控制器能够自定义该消息中携带的数据包内容，以及交换机收到Packet-Out消息后的行为。控制器通过在Packet-Out消息中封装探测数据包并下发至指定交换机，就能够发起主动测量任务。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中Packet-Out消息格式.png" alt="图4 OpenFlow1.3中Packet-Out消息格式"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中Packet-Out消息格式.png" srcset="/img/loading.gif" alt="图4 OpenFlow1.3中Packet-Out消息格式"></p>
 <h3 id="Packet-In消息"><a href="#Packet-In消息" class="headerlink" title="Packet-In消息"></a>Packet-In消息</h3><p>在由交换机发起的Asynchronous消息类型中，包含Packet-In消息，其格式如图5所示，该消息与Packet-Out类似，可以封装交换机上的指定数据包并发送至控制器做进一步处理。当交换机中的流表项无法匹配某个数据包时，会默认触发Packet-In消息。由于探测数据包通常与网络中的正常流量有所不同，因此基于OpenFlow的SDN主动测量可以利用Packet-In消息机制实现探测包的回收。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中Packet-In消息格式.png" alt="图5 OpenFlow1.3中Packet-In消息格式"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\OpenFlow1.3中Packet-In消息格式.png" srcset="/img/loading.gif" alt="图5 OpenFlow1.3中Packet-In消息格式"></p>
 <h3 id="测量拓扑"><a href="#测量拓扑" class="headerlink" title="测量拓扑"></a>测量拓扑</h3><p>拓扑测量负责对网络中各个设备之间的链路关系进行定期的检测，并维护完整的网络拓扑，是控制器和上层应用实现对整个网络资源进行统一调度和管理的基础。在传统IP网络中，拓扑测量采用链路发现协议(LLDP)。LLDP报文格式如图6所示，其中包含了Chassis ID TLV(设备标示符)，Port ID TLV(端口标示符)等字段，每个网络节点将自己和相邻设备的链路信息发送给其他节点，最终实现在各个网络设备上分散地测量链路信息。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\LLDP报文格式.png" alt="图6 LLDP报文格式"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\LLDP报文格式.png" srcset="/img/loading.gif" alt="图6 LLDP报文格式"></p>
 <p>目前，OpenFlow的拓扑发现协议(OFDP)依然沿用了LLDP协议，基于OpenFlow的Packet-Out和Packet-In消息测量拓扑，其采用了主动测量方式，原理如图7所示，基本思想如下：</p>
 <p>（1）控制器构造包含LLDP数据包的Packet-Out消息下发至交换机S1，并指定从某端口转发至交换机S2，其中LLDP数据包中的Chassis ID TLV字段设置为交换机S1的Datapath ID，Port ID TLV字段设置为交换机目标转发端口。</p>
 <p>（2）S2接收到LLDP数据包，触发Packet-In消息，将LLDP数据包发回控制器。</p>
 <p>（3）控制器通过分析LLDP数据包，可以得到LLDP数据包在交换机S1上的发出端口和在交换机S2上的接收端口存在链接关系，从而获得一条链路信息。通过这种方式，控制器可以实现对整个网络的拓扑测量，发送的Packet-Out信息数量与网络中所有交换机活动端口的数量有关。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于Packet-Out和Packet-In消息测量拓扑原理图.png" alt="图7 基于Packet-Out和Packet-In消息测量拓扑原理图"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于Packet-Out和Packet-In消息测量拓扑原理图.png" srcset="/img/loading.gif" alt="图7 基于Packet-Out和Packet-In消息测量拓扑原理图"></p>
 <h3 id="测量时延"><a href="#测量时延" class="headerlink" title="测量时延"></a>测量时延</h3><p>交换机之间传输时延是表明链路运行状态的重要参数。由于OpenFlow交换机不具备在正常传输的报文中打时间戳的功能，无法采用传统IP网络中的被动测量方式。因此，需要利用主动测量思想，在交换机之间生成并发送探测包。如图8所示，控制器的测量目标是交换机S1到交换机S2的时延，则控制器将探测包发送至S1，并下发规则指定S1将探测包发送至S2。S2接收到探测包后，由于没有对应的转发规则，会将探测包返回控制器，控制器则会计算出探测包在路径中传输的总时间。由于控制器和交换机之间的通信也存在时延，因此控制器还需要发送通信消息，获得控制器和各个交换机之间的消息往返时间，通过计算差值，获得最终的链路时延结果。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于Packet-Out和Packet-In消息测量时延原理图.png" alt="图8 基于Packet-Out和Packet-In消息测量时延原理图"></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\基于Packet-Out和Packet-In消息测量时延原理图.png" srcset="/img/loading.gif" alt="图8 基于Packet-Out和Packet-In消息测量时延原理图"></p>
 <p>因此，测量时延的详细步骤如下：</p>
 <p>(1)获得探测包传输时间Ttravel：控制器生成探测数据包，其中包含交换机S1的目标转发端口和生成探测数据包时的时间戳，用来记录探测包的转发路径和发送探测包的时间。然后，控制器通过Packet-Out消息封装探测数据包，并下发至交换机S1，并从指定端口将探测包转发至S2。S2接收到数据包后，由于没有匹配的流表项，会触发Packet-In消息，将探测包封装并返回控制器。控制器通过对探测包的字段进行分析，可以得到探测包在“控制器一S1—S2一控制器”路径上的传输时间Ttravel。</p>
 <p>(2)获得控制器和交换机的往返时间RTT：得到Ttravel后，还需要知道数据包控制器和交换机往返传输时间，从而计算得到控制器下发探测包以及交换机返回探测包的时延。根据OpenFlow协议，控制器生成Echo Request消息分别下发交换机S1和S2，并记录收到Echo Reply消息的时间，得到控制器和交换机的往返传输时间RTT</p>
 <p> (3)计算交换机链路时延：根据上述测量结果，通过公式(4)计算得到交换机S1和S2之间的时延Tdelay。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路时延计算公式.png" alt></p>
+<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路时延计算公式.png" srcset="/img/loading.gif" alt></p>
 <h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><ul>
 <li><a href="http://d.old.wanfangdata.com.cn/Thesis/Y3141829" target="_blank" rel="noopener">刘一童. SDN网络测量系统的研究与实现[D]. 2016.</a></li>
 <li><a href="http://www.cnki.com.cn/Article/CJFDTotal-PZKX201803005.htm" target="_blank" rel="noopener">张恒, 蔡志平, 李阳. SDN网络测量技术综述[J]. 中国科学:信息科学, 2018, v.48(03):65-86.</a></li>
@@ -183,411 +203,253 @@
 <li><a href="https://www.opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf" target="_blank" rel="noopener">openflow-spec-v1.3.0</a></li>
 </ul>
 
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://chentingz.github.io/2020/02/12/基于OpenFlow消息的网络测量方法/" data-id="ck6wpw5yn000ag4ez14hklp0i" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2020/02/22/「Floodlight」链路丢包率测量/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          「Floodlight」链路丢包率测量
-        
+            <hr>
+          </div>
+          <br>
+          <div>
+            <p>
+            
+              <span>
+                <i class="iconfont icon-inbox"></i>
+                
+                  <a class="hover-with-bg" href="/categories/SDN">SDN</a>
+                  &nbsp;
+                
+              </span>&nbsp;&nbsp;
+            
+            
+            </p>
+            
+              <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+            
+          </div>
+        </div>
       </div>
+    </div>
+    <div class="d-none d-lg-block col-lg-2 toc-container">
+      
+  <div id="toc">
+    <p class="h4"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+    <div id="tocbot"></div>
+  </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- custom -->
+
+
+<!-- Comments -->
+<div class="col-lg-7 mx-auto nopadding-md">
+  <div class="container comments mx-auto" id="comments">
+    
+  </div>
+</div>
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
     </a>
   
-  
-    <a href="/2019/12/30/「OpenFlow」协议入门/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">「OpenFlow」协议入门</div>
-    </a>
-  
-</nav>
 
   
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/SDN/">SDN</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/虚拟化/">虚拟化</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-
-  
-</aside>
-        
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2020 Chentingz<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a><br>
-	  <span id="busuanzi_container_site_uv">
-		<span id="icon-visiters-count"></span><span id="busuanzi_value_site_uv"></span>
-	  </span>
-  </div>
-</div></footer>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
     </div>
-    <nav id="mobile-nav">
+  </div>
+</div>
   
-    <a href="/" class="mobile-nav-link">Home</a>
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+	&copy; 2020 Chentingz
+	<br>
+
+    <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a> 
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    <br>
+
+    
   
-</nav>
+    <!-- 不蒜子统计PV -->
+    
+    &nbsp;<span id="busuanzi_container_site_pv"></span>总访问量 
+          <span id="busuanzi_value_site_pv"></span> 次&nbsp;
+  
+  
+    <!-- 不蒜子统计UV -->
+    
+    &nbsp;<span id="busuanzi_container_site_uv"></span>总访客数 
+            <span id="busuanzi_value_site_uv"></span> 人&nbsp;
+  
+  <br>
+
+
+
     
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
-
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-<script src="/js/script.js"></script>
-
-
+    <!-- cnzz Analytics icon -->
+    
 
   </div>
-  <!-- local search-->
+</footer>
+
+<!-- SCRIPTS -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/popper/popper.min.js"></script>
+<script src="/lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="/lib/mdbootstrap/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+  <script src="/js/lazyload.js"></script>
+
+
+
   
-  <script type="text/javascript">
-    // Popup Window;
-    var isfetched = false;
-    var isXml = true;
-    // Search DB path;
-	var search_path = "search.xml" ;
-    if (search_path.length === 0) {
-      search_path = "search.xml";
-    } else if (/json$/i.test(search_path)) {
-      isXml = false;
-    }
-    var path = "/" + search_path;
-    // monitor main search box;
+    <script src="/lib/tocbot/tocbot.min.js"></script>
+  
+  <script src="/js/post.js"></script>
 
-    var onPopupClose = function (e) {
-      $('.popup').hide();
-      $('#local-search-input').val('');
-      $('.search-result-list').remove();
-      $('#no-result').remove();
-      $(".local-search-pop-overlay").remove();
-      $('body').css('overflow', '');
-    }
 
-    function proceedsearch() {
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
-        .css('overflow', 'hidden');
-      $('.search-popup-overlay').click(onPopupClose);
-      $('.popup').toggle();
-      var $localSearchInput = $('#local-search-input');
-      $localSearchInput.attr("autocapitalize", "none");
-      $localSearchInput.attr("autocorrect", "off");
-      $localSearchInput.focus();
-    }
 
-    // search function;
-    var searchFunc = function(path, search_id, content_id) {
-      'use strict';
+  <script src="/lib/smoothscroll/SmoothScroll.min.js"></script>
 
-      // start loading animation
-      $("body")
-        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
-          '<div id="search-loading-icon">' +
-          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
-          '</div>' +
-          '</div>')
-        .css('overflow', 'hidden');
-      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
 
-      $.ajax({
-        url: path,
-        dataType: isXml ? "xml" : "json",
-        async: true,
-        success: function(res) {
-          // get the contents from search data
-          isfetched = true;
-          $('.popup').detach().appendTo('.local-search-inner');
-          var datas = isXml ? $("entry", res).map(function() {
-            return {
-              title: $("title", this).text(),
-              content: $("content",this).text(),
-              url: $("url" , this).text()
-            };
-          }).get() : res;
-          var input = document.getElementById(search_id);
-          var resultContent = document.getElementById(content_id);
-          var inputEventFunction = function() {
-            var searchText = input.value.trim().toLowerCase();
-            var keywords = searchText.split(/[\s\-]+/);
-            if (keywords.length > 1) {
-              keywords.push(searchText);
-            }
-            var resultItems = [];
-            if (searchText.length > 0) {
-              // perform local searching
-              datas.forEach(function(data) {
-                var isMatch = false;
-                var hitCount = 0;
-                var searchTextCount = 0;
-                var title = data.title.trim();
-                var titleInLowerCase = title.toLowerCase();
-                var content = data.content.trim().replace(/<[^>]+>/g,"");
-                var contentInLowerCase = content.toLowerCase();
-                var articleUrl = decodeURIComponent(data.url);
-                var indexOfTitle = [];
-                var indexOfContent = [];
-                // only match articles with not empty titles
-                if(title != '') {
-                  keywords.forEach(function(keyword) {
-                    function getIndexByWord(word, text, caseSensitive) {
-                      var wordLen = word.length;
-                      if (wordLen === 0) {
-                        return [];
-                      }
-                      var startPosition = 0, position = [], index = [];
-                      if (!caseSensitive) {
-                        text = text.toLowerCase();
-                        word = word.toLowerCase();
-                      }
-                      while ((position = text.indexOf(word, startPosition)) > -1) {
-                        index.push({position: position, word: word});
-                        startPosition = position + wordLen;
-                      }
-                      return index;
-                    }
 
-                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
-                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
-                  });
-                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
-                    isMatch = true;
-                    hitCount = indexOfTitle.length + indexOfContent.length;
-                  }
-                }
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-                // show search results
 
-                if (isMatch) {
-                  // sort index by position of keyword
+<!-- Plugins -->
 
-                  [indexOfTitle, indexOfContent].forEach(function (index) {
-                    index.sort(function (itemLeft, itemRight) {
-                      if (itemRight.position !== itemLeft.position) {
-                        return itemRight.position - itemLeft.position;
-                      } else {
-                        return itemLeft.word.length - itemRight.word.length;
-                      }
-                    });
-                  });
 
-                  // merge hits into slices
+  
 
-                  function mergeIntoSlice(text, start, end, index) {
-                    var item = index[index.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    var hits = [];
-                    var searchTextCountInSlice = 0;
-                    while (position + word.length <= end && index.length != 0) {
-                      if (word === searchText) {
-                        searchTextCountInSlice++;
-                      }
-                      hits.push({position: position, length: word.length});
-                      var wordEnd = position + word.length;
+  
+    <!-- Google Analytics -->
+    <script>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-                      // move to next position of hit
+      ga('create', 'UA-159680823-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
 
-                      index.pop();
-                      while (index.length != 0) {
-                        item = index[index.length - 1];
-                        position = item.position;
-                        word = item.word;
-                        if (wordEnd > position) {
-                          index.pop();
-                        } else {
-                          break;
-                        }
-                      }
-                    }
-                    searchTextCount += searchTextCountInSlice;
-                    return {
-                      hits: hits,
-                      start: start,
-                      end: end,
-                      searchTextCount: searchTextCountInSlice
-                    };
-                  }
+  
 
-                  var slicesOfTitle = [];
-                  if (indexOfTitle.length != 0) {
-                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
-                  }
+  
 
-                  var slicesOfContent = [];
-                  while (indexOfContent.length != 0) {
-                    var item = indexOfContent[indexOfContent.length - 1];
-                    var position = item.position;
-                    var word = item.word;
-                    // cut out 100 characters
-                    var start = position - 20;
-                    var end = position + 80;
-                    if(start < 0){
-                      start = 0;
-                    }
-                    if (end < position + word.length) {
-                      end = position + word.length;
-                    }
-                    if(end > content.length){
-                      end = content.length;
-                    }
-                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
-                  }
+  <!-- cnzz Analytics -->
+  
 
-                  // sort slices in content by search text's count and hits' count
 
-                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
-                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
-                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
-                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
-                      return sliceRight.hits.length - sliceLeft.hits.length;
-                    } else {
-                      return sliceLeft.start - sliceRight.start;
-                    }
-                  });
 
-                  // select top N slices in content
+  <script src="/lib/prettify/prettify.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
 
-                  var upperBound = parseInt('{{ theme.local_search.top_n_per_article }}');
-                  if (upperBound >= 0) {
-                    slicesOfContent = slicesOfContent.slice(0, upperBound);
-                  }
 
-                  // highlight title and content
 
-                  function highlightKeyword(text, slice) {
-                    var result = '';
-                    var prevEnd = slice.start;
-                    slice.hits.forEach(function (hit) {
-                      result += text.substring(prevEnd, hit.position);
-                      var end = hit.position + hit.length;
-                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
-                      prevEnd = end;
-                    });
-                    result += text.substring(prevEnd, slice.end);
-                    return result;
-                  }
-
-                  var resultItem = '';
-
-                  if (slicesOfTitle.length != 0) {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
-                  } else {
-                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
-                  }
-
-                  slicesOfContent.forEach(function (slice) {
-                    resultItem += "<a href='" + articleUrl + "'>" +
-                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
-                      "...</p>" + "</a>";
-                  });
-
-                  resultItem += "</li>";
-                  resultItems.push({
-                    item: resultItem,
-                    searchTextCount: searchTextCount,
-                    hitCount: hitCount,
-                    id: resultItems.length
-                  });
-                }
-              })
-            };
-            if (keywords.length === 1 && keywords[0] === "") {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
-            } else if (resultItems.length === 0) {
-              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
-            } else {
-              resultItems.sort(function (resultLeft, resultRight) {
-                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
-                  return resultRight.searchTextCount - resultLeft.searchTextCount;
-                } else if (resultLeft.hitCount !== resultRight.hitCount) {
-                  return resultRight.hitCount - resultLeft.hitCount;
-                } else {
-                  return resultRight.id - resultLeft.id;
-                }
-              });
-              var searchResultList = '<ul class=\"search-result-list\">';
-              resultItems.forEach(function (result) {
-                searchResultList += result.item;
-              })
-              searchResultList += "</ul>";
-              resultContent.innerHTML = searchResultList;
-            }
-          }
-
-         // if ('auto' === '{{ theme.local_search.trigger }}') {
-		 if ('auto' === "auto") {
-            input.addEventListener('input', inputEventFunction);
-          } else {
-            $('.search-icon').click(inputEventFunction);
-            input.addEventListener('keypress', function (event) {
-              if (event.keyCode === 13) {
-                inputEventFunction();
-              }
-            });
-          }
-
-          // remove loading animation
-          $(".local-search-pop-overlay").remove();
-          $('body').css('overflow', '');
-
-          proceedsearch();
-        }
-      });
-    }
-
-    // handle and trigger popup window;
-    $('.popup-trigger').click(function(e) {
-      e.stopPropagation();
-      if (isfetched === false) {
-        searchFunc(path, 'local-search-input', 'local-search-result');
-      } else {
-        proceedsearch();
-      };
+  <script src="/lib/typed/typed.min.js"></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "基于OpenFlow消息的网络测量方法&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 0,
+      loop: false,
     });
-
-    $('.popup-btn-close').click(onPopupClose);
-    $('.popup').click(function(e){
-      e.stopPropagation();
-    });
-    $(document).on('keyup', function (event) {
-      var shouldDismissSearchPopup = event.which === 27 &&
-        $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        onPopupClose();
-      }
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
     });
   </script>
+
+
+
+  <script src="/lib/anchor/anchor.min.js"></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "false",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script src="/js/local-search.js"></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script src="/lib/fancybox/jquery.fancybox.min.js"></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
 
 
 
