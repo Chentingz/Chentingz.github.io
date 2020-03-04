@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="description" content>
+  <meta name="author" content="Chentingz">
+  <meta name="keywords" content>
+  <title>「虚拟化」基于virsh实现虚拟机动态迁移 - Chentingz</title>
+
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+  <link rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">分类</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" false
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2019-12-11 12:00 凌晨
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    1.7k 字
+                  </span>
+                
+
+                
+
+                
+                  <!-- 不蒜子统计文章PV -->
+                  
+                  <span id="busuanzi_container_page_pv" class="post-meta" style="display: none">
+                    <i class="far fa-eye" aria-hidden="true"></i>
+                    <span id="busuanzi_value_page_pv"></span> 次
+                  </span>
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="py-5 z-depth-3" id="board">
+        <div class="post-content mx-auto" id="post">
+          
+          <div class="markdown-body">
+            <h2 id="0x00-目录"><a href="#0x00-目录" class="headerlink" title="0x00 目录"></a>0x00 目录</h2><ul>
+<li><a href="#0x00-目录">0x00 目录</a></li>
+<li><a href="#0x01-虚拟机迁移方式">0x01 虚拟机迁移方式</a><ul>
+<li><a href="#静态迁移">静态迁移</a></li>
+<li><a href="#动态迁移">动态迁移</a><ul>
+<li><a href="#基于共享存储">基于共享存储</a></li>
+<li><a href="#基于本地存储">基于本地存储</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#0x02-虚拟机管理工具">0x02 虚拟机管理工具</a></li>
+<li><a href="#0x03-搭建kvm虚拟化环境">0x03 搭建KVM虚拟化环境</a></li>
+<li><a href="#0x04-基于virsh实现虚拟机动态迁移">0x04 基于virsh实现虚拟机动态迁移</a><ul>
+<li><a href="#实验环境">实验环境</a></li>
+<li><a href="#scp拷贝磁盘文件">SCP拷贝磁盘文件</a></li>
+<li><a href="#virsh动态迁移内存状态">virsh动态迁移内存状态</a></li>
+<li><a href="#virsh导出配置文件">virsh导出配置文件</a></li>
+<li><a href="#virsh定义并创建虚拟机">virsh定义并创建虚拟机</a></li>
+</ul>
+</li>
+<li><a href="#0x05-参考">0x05 参考</a></li>
+</ul>
+<a id="more"></a>
+<h2 id="0x01-虚拟机迁移方式"><a href="#0x01-虚拟机迁移方式" class="headerlink" title="0x01 虚拟机迁移方式"></a>0x01 虚拟机迁移方式</h2><p>虚拟机迁移一般指虚拟机从一台物理机上迁移到另一台物理机上，迁移的内容包括虚拟机的<strong>磁盘文件、配置文件和内存状态</strong>。<br>从迁移方式上可分为两种：静态迁移和动态迁移。</p>
+<h3 id="静态迁移"><a href="#静态迁移" class="headerlink" title="静态迁移"></a>静态迁移</h3><p>这种方式又称为离线迁移或线下迁移，指的是虚拟机需要在<strong>关机</strong>的前提下，完成迁移操作。<br>迁移的过程分为两个阶段：</p>
+<p>1.从源物理机上拷贝虚拟机的<strong>磁盘文件、配置文件</strong>至目的物理机上，可以使用SCP命令完成拷贝工作</p>
+<p>2.在目的物理机上，根据拷贝的磁盘文件及配置文件，定义并创建虚拟机</p>
+<h3 id="动态迁移"><a href="#动态迁移" class="headerlink" title="动态迁移"></a>动态迁移</h3><p>这种方式也成为热迁移、在线迁移、线上迁移等，总之就是指虚拟机在<strong>运行</strong>的情况下，完成从源物理机迁移至目的物理机，在这过程中虚拟机只经历一个很短暂的暂停（虚拟机从源物理机上切换到目的物理机上），用户几乎感受不到服务的中断</p>
+<p>根据磁盘文件的存储位置，又可分为以下两类：</p>
+<ul>
+<li><p>基于共享存储</p>
+</li>
+<li><p>基于本地存储（块存储）</p>
+</li>
+</ul>
+<h4 id="基于共享存储"><a href="#基于共享存储" class="headerlink" title="基于共享存储"></a>基于共享存储</h4><p>源物理机与目的物理机拥有共享的存储设备，虚拟机的磁盘文件可以被源物理机和目的物理机所访问，因此无需迁移。迁移的过程如下：</p>
+<p>1.从源物理机上迁移<strong>虚拟机的内存状态</strong>到目的物理机</p>
+<pre><code>注：迁移结束后，虚拟机就已经在目的物理机上运行了，但是由于目的物理机上无该虚拟机配置文件，若此时关闭虚拟机，就无法找到该虚拟机了，所以需要完成接下来的操作
+</code></pre><p>2.在目的物理机上，根据迁移的内存状态导出虚拟机的配置文件</p>
+<p>3.在目的物理机上，根据导出的虚拟机配置文件，定义并创建虚拟机</p>
+<h4 id="基于本地存储"><a href="#基于本地存储" class="headerlink" title="基于本地存储"></a>基于本地存储</h4><p>源物理机与目的物理机都使用独立的存储设备，因此迁移的内容包括<strong>虚拟机的磁盘文件、内存状态以及配置文件</strong>（从内存状态中导出），迁移的过程如下：</p>
+<p>1.从源物理机上拷贝<strong>磁盘文件</strong>到目的物理机</p>
+<pre><code>例如：使用SCP命令，同时要使用相同的目录结构放置虚拟机磁盘文件
+</code></pre><p>2.从物理机上迁移<strong>内存状态</strong>到目的物理机</p>
+<pre><code>例如：使用virsh migrate --live命令，或直接使用virt-manager图形化界面上的迁移操作
+</code></pre><pre><code>注：迁移结束后，虚拟机就已经在目的物理机上运行了，但是由于目的物理机上无该虚拟机配置文件，若此时关闭虚拟机，就无法找到该虚拟机了，所以需要完成接下来的操作
+</code></pre><p>3.在目的物理机上，根据迁移的内存状态导出虚拟机的配置文件</p>
+<p>4.在目的物理机上，根据导出的虚拟机配置文件，定义并创建虚拟机</p>
+<h2 id="0x02-虚拟机管理工具"><a href="#0x02-虚拟机管理工具" class="headerlink" title="0x02 虚拟机管理工具"></a>0x02 虚拟机管理工具</h2><ul>
+<li>libvirt：用于实现虚拟机管理的开源API，可以实现对虚拟机的创建、删除、分配资源等</li>
+<li>virt-manager：基于libvirt实现的虚拟机管理工具，图形化界面，类似VMware Workstation和VirtualBox</li>
+<li>virsh：基于libvirt实现的虚拟机管理工具，命令行</li>
+</ul>
+<h2 id="0x03-搭建KVM虚拟化环境"><a href="#0x03-搭建KVM虚拟化环境" class="headerlink" title="0x03 搭建KVM虚拟化环境"></a>0x03 搭建KVM虚拟化环境</h2><ol>
+<li><p>查看CPU是否支持KVM</p>
+<pre><code>egrep &quot;(svm|vmx)&quot; /proc/cpuinfo
+</code></pre><p>如果有输出，则说明CPU支持KVM</p>
+</li>
+<li><p>安装KVM及相关依赖包</p>
+<pre><code>sudo apt-get install qemu-kvm
+sudo apt-get install qemu
+sudo apt-get install virt-manager
+sudo apt-get install virt-viewer 
+sudo apt-get install libvirt-bin 
+sudo apt-get install bridge-utils
+</code></pre></li>
+<li><p>启动KVM虚拟系统管理器</p>
+<pre><code>sudo virt-manager
+</code></pre></li>
+</ol>
+<h2 id="0x04-基于virsh实现虚拟机动态迁移"><a href="#0x04-基于virsh实现虚拟机动态迁移" class="headerlink" title="0x04 基于virsh实现虚拟机动态迁移"></a>0x04 基于virsh实现虚拟机动态迁移</h2><p>这里采用基于本地存储的动态迁移方式，实现在物理机1上的虚拟机VM1动态迁移到物理机2上。</p>
+<h3 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h3><pre><code>名称        主机名      IP地址              操作系统          
+源物理机    kvm-node1   192.168.111.130     ubuntu-16.04.4-desktop
+目的物理机  kvm-node2   192.168.111.132     ubuntu-16.04.4-desktop
+虚拟机      VM1         192.168.122.18      ubuntu-16.04.3-server
+</code></pre><h3 id="SCP拷贝磁盘文件"><a href="#SCP拷贝磁盘文件" class="headerlink" title="SCP拷贝磁盘文件"></a>SCP拷贝磁盘文件</h3><p>在源物理机上使用SCP命令拷贝磁盘文件至目的物理机上</p>
+<pre><code>sudo scp /var/lib/libvirt/images/node.qcow2 192.168.200.132:/var/lib/libvirt/images
+</code></pre><ul>
+<li>/var/lib/libvirt/images：存放虚拟机磁盘文件的目录</li>
+<li>node.qcow2：虚拟机VM1的磁盘文件</li>
+<li>192.168.200.132：目的物理机IP地址</li>
+<li>注1：磁盘文件拷贝到目的物理机上后，要存放在相同的目录结构中</li>
+<li>注2：192.168.200.132前若不加用户名，则默认以root身份访问。若<a href="mailto:kvm@192.168.200.132" target="_blank" rel="noopener">kvm@192.168.200.132</a>，则以kvm身份访问</li>
+</ul>
+<p><img src="/imgs/ji_yu_virtsh_de_xu_ni_ji_dong_tai_qian_yi/scp拷贝磁盘文件.png" srcset="/img/loading.gif" alt="scp拷贝磁盘文件"></p>
+<p><img src="/imgs/ji_yu_virtsh_de_xu_ni_ji_dong_tai_qian_yi/磁盘文件成功拷贝至目的物理机.png" srcset="/img/loading.gif" alt="磁盘文件成功拷贝至目的物理机"></p>
+<h3 id="virsh动态迁移内存状态"><a href="#virsh动态迁移内存状态" class="headerlink" title="virsh动态迁移内存状态"></a>virsh动态迁移内存状态</h3><p>在源物理机上使用virsh命令迁移虚拟机内存状态至目的物理机上</p>
+<pre><code>sudo virsh migrate --live --verbose VM1 qemu+ssh://192.168.200.131/system tcp://192.168.200.131 --unsafe
+</code></pre><ul>
+<li>virsh migrate –live：动态迁移</li>
+<li>–verbose：显示迁移详情</li>
+<li>VM1：需要迁移的虚拟机</li>
+<li>qemu+ssh：通过ssh连接到目的物理机上的system实例，具有最大权限来管理远程节点上的虚拟机资源</li>
+<li>/system： 以root身份进行状态迁移</li>
+<li>tcp：使用tcp连接</li>
+<li>192.168.200.131：目的物理机IP地址</li>
+<li>–unsafe：跳过安全检测</li>
+<li>注：可以指定身份访问远程主机，如远程主机用户名为kvm，则可以使用 <code>qemu+ssh://kvm@192.168.200.131/system</code>，若不添加kvm，默认使用root访问</li>
+</ul>
+<p><img src="/imgs/ji_yu_virtsh_de_xu_ni_ji_dong_tai_qian_yi/VM1迁移前源物理机状态.png" srcset="/img/loading.gif" alt="VM1迁移前源物理机状态"></p>
+<p><img src="/imgs/ji_yu_virtsh_de_xu_ni_ji_dong_tai_qian_yi/VM1迁移后源物理机状态.png" srcset="/img/loading.gif" alt="VM1迁移后源物理机状态"></p>
+<p>在目的物理机上，查看虚拟机状态</p>
+<pre><code>sudo virsh list --all
+</code></pre><p>可见，虚拟机VM1已经迁移成功并且在目的物理机上运行</p>
+<p><img src="/imgs/ji_yu_virtsh_de_xu_ni_ji_dong_tai_qian_yi/目的物理机上虚拟机状态.png" srcset="/img/loading.gif" alt="迁移到目的物理机上的VM1已处于运行状态"></p>
+<h3 id="virsh导出配置文件"><a href="#virsh导出配置文件" class="headerlink" title="virsh导出配置文件"></a>virsh导出配置文件</h3><p>在目的物理机上，根据内存状态导出虚拟机VM1配置文件，否则迁移后远程主机没有虚拟机VM1的配置文件，关闭VM1后，VM1就没有了</p>
+<pre><code>sudo virsh dumpxml VM1 &gt; /etc/libvirt/qemu/VM1.xml
+</code></pre><h3 id="virsh定义并创建虚拟机"><a href="#virsh定义并创建虚拟机" class="headerlink" title="virsh定义并创建虚拟机"></a>virsh定义并创建虚拟机</h3><p>根据VM1的配置文件定义并创建虚拟机</p>
+<pre><code>sudo virsh define /etc/libvirt/qemu/VM1.xml
+</code></pre><h2 id="0x05-参考"><a href="#0x05-参考" class="headerlink" title="0x05 参考"></a>0x05 参考</h2><ul>
+<li><p><a href="https://blog.csdn.net/leoe_/article/details/78740088" target="_blank" rel="noopener">Virsh 虚拟机迁移</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/zhy128/p/8042801.html" target="_blank" rel="noopener">虚拟机迁移（QEMU动态迁移，Libvirt动（静）态迁移）</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/ccskun/p/5527014.html" target="_blank" rel="noopener">Ubuntu 16.04 搭建KVM环境</a></p>
+</li>
+</ul>
+
+            <hr>
+          </div>
+          <br>
+          <div>
+            <p>
+            
+              <span>
+                <i class="iconfont icon-inbox"></i>
+                
+                  <a class="hover-with-bg" href="/categories/虚拟化/">虚拟化</a>
+                  &nbsp;
+                
+              </span>&nbsp;&nbsp;
+            
+            
+            </p>
+            
+              <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container">
+        <div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+      </div>
+    
+  </div>
+</div>
+
+<!-- custom -->
+
+
+<!-- Comments -->
+<div class="col-lg-7 mx-auto nopadding-md">
+  <div class="container comments mx-auto" id="comments">
+    
+  </div>
+</div>
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+	&copy; 2020 <a href="https://github.com/chentingz" target="_blank" rel="nofollow noopener"><b>Chentingz</b></a>
+	<br>
+	
+    <a href="https://hexo.io" target="_blank" rel="nofollow noopener" font-weight="bold"><b>Hexo</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><b>Fluid</b></a>
+
+    
+  <div>
+    	  
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+	  <i class="fa fa-eye" aria-hidden="true"></i>
+      <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+	  <i class="fa fa-users" aria-hidden="true"></i>
+      <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+
+    <!-- cnzz Analytics icon -->
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js"></script>
+<script src="/js/main.js"></script>
+
+
+  <script src="/js/lazyload.js"></script>
+
+
+
+  
+  <script src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var toc = $('#toc');
+      var main = $('main');
+      var tocT = navHeight + (toc.offset().top - main.offset().top);
+      var tocLimMin = main.offset().top - navHeight;
+      var tocLimMax = $('#comments').offset().top - navHeight;
+      $(window).scroll(function () {
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': tocT,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+
+
+  <script defer src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<!-- Plugins -->
+
+
+
+  <script src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js"></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "「虚拟化」基于virsh实现虚拟机动态迁移&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js"></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script src="/js/local-search.js"></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
