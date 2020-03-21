@@ -5,7 +5,7 @@
 
 
 
-<head><meta name="generator" content="Hexo 3.8.0">
+<head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="/img/favicon.png">
@@ -39,9 +39,12 @@
   <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
-    <a class="navbar-brand" href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -73,9 +76,18 @@
             <a class="nav-link" href="/categories/">分类</a>
           </li>
         
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/footprints/">足迹</a>
+          </li>
+        
         
           <li class="nav-item" id="search-btn">
-            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
           </li>
         
       </ul>
@@ -155,40 +167,39 @@
 <li><a href="#0x04-链路丢包率测量模块实现">0x04 链路丢包率测量模块实现</a></li>
 <li><a href="#0x05-mininet搭建拓扑测量链路丢包率">0x05 Mininet搭建拓扑测量链路丢包率</a></li>
 <li><a href="#0x06-参考">0x06 参考</a><a id="more"></a>
+
+
 </li>
 </ul>
 <h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>Floodlight控制器中StatisticsCollector模块已经实现了用Port-Stats消息测量OpenFlow交换机端口的吞吐量，本文通过对StatisticsCollector模块进行扩展，并用Mininet搭建拓扑，实现在SDN网络中测量中链路丢包率。</p>
 <h2 id="0x02-基于OpenFlow的Port-Stats消息测量链路丢包率原理"><a href="#0x02-基于OpenFlow的Port-Stats消息测量链路丢包率原理" class="headerlink" title="0x02 基于OpenFlow的Port-Stats消息测量链路丢包率原理"></a>0x02 基于OpenFlow的Port-Stats消息测量链路丢包率原理</h2><p>请参考<a href="https://chentingz.github.io/2020/02/12/%E5%9F%BA%E4%BA%8EOpenFlow%E6%B6%88%E6%81%AF%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%8B%E9%87%8F%E6%96%B9%E6%B3%95/#%E6%B5%8B%E9%87%8F%E4%B8%A2%E5%8C%85%E7%8E%87">基于OpenFlow消息的网络测量方法 </a></p>
 <h2 id="0x03-链路丢包率测量模块设计"><a href="#0x03-链路丢包率测量模块设计" class="headerlink" title="0x03 链路丢包率测量模块设计"></a>0x03 链路丢包率测量模块设计</h2><h3 id="StatisticsCollector模块分析"><a href="#StatisticsCollector模块分析" class="headerlink" title="StatisticsCollector模块分析"></a>StatisticsCollector模块分析</h3><p>如图1所示，src/main/java目录下，net.floodlightcontroller.statistics包中StatisticsCollector.java文件定义了StatisticsCollector模块。该模块每隔10s创建多个线程轮询拓扑中所有交换机以获取Port-Stats响应消息，通过Port-Stats响应消息中的rx_bytes、tx_bytes、duration_sec和duration_nsec四个字段来测量端口吞吐量。因此，可以在该模块获取Port-Stats响应消息基础上，添加代码以实现链路丢包率的测量。</p>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\net.floodlightcontroller.statistics包.png" srcset="/img/loading.gif" alt="图1 net.floodlightcontroller.statistics包"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5Cnet.floodlightcontroller.statistics%E5%8C%85.png" srcset="/img/loading.gif" alt="图1 net.floodlightcontroller.statistics包"></p>
 <p>StatisticsCollector模块中的PortStatsCollector内部类实现了端口吞吐量测量，如图2所示，它通过调用getSwitchStatistics方法来获取所有交换机的统计信息，然后根据上一次查询的Port-Stats消息以及本次查询的Port-Stats消息，分别提取rx_bytes、tx_bytes、duration_sec和duration_nsec字段，通过公式（2）和公式（3）即可计算出交换机端口发送吞吐量或接收吞吐量。</p>
-<p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\交换机端口吞吐量计算公式.png" srcset="/img/loading.gif" alt="交换机端口吞吐量计算公式"></p>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\StatisticsCollector模块中PortStatsCollector类.png" srcset="/img/loading.gif" alt="图2 StatisticsCollector模块中PortStatsCollector类"></p>
+<p><img src="%5Cimgs%5CNetwork_Measurement_Based_On_OpenFlow_Message%5C%E4%BA%A4%E6%8D%A2%E6%9C%BA%E7%AB%AF%E5%8F%A3%E5%90%9E%E5%90%90%E9%87%8F%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F.png" srcset="/img/loading.gif" alt="交换机端口吞吐量计算公式"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5CStatisticsCollector%E6%A8%A1%E5%9D%97%E4%B8%ADPortStatsCollector%E7%B1%BB.png" srcset="/img/loading.gif" alt="图2 StatisticsCollector模块中PortStatsCollector类"></p>
 <p>StatisticsCollector模块中的getSwitchStatistics方法有两个重载版本，分别是  </p>
 <pre><code class="java">protected List&lt;OFStatsReply&gt; getSwitchStatistics(DatapathId switchId, OFStatsType statsType)
 
 Map&lt;DatapathId, List&lt;OFStatsReply&gt;&gt; getSwitchStatistics(Set&lt;DatapathId&gt; dpids, OFStatsType statsType)
-
 </code></pre>
 <p>其中前者的作用是获取单台交换机的统计消息（以Stats结尾的消息，如Port-Stats消息）。该方法的实现如图3所示，首先构造一个Stats请求消息根据交换机DPID发送给指定交换机，然后接收交换机返回的Stats响应消息，并保存在List列表中。</p>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\Statistics模块中getSwitchStatistics方法获取单台交换机的统计信息.png" srcset="/img/loading.gif" alt="图3 Statistics模块中getSwitchStatistics方法获取单台交换机的统计信息"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5CStatistics%E6%A8%A1%E5%9D%97%E4%B8%ADgetSwitchStatistics%E6%96%B9%E6%B3%95%E8%8E%B7%E5%8F%96%E5%8D%95%E5%8F%B0%E4%BA%A4%E6%8D%A2%E6%9C%BA%E7%9A%84%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF.png" srcset="/img/loading.gif" alt="图3 Statistics模块中getSwitchStatistics方法获取单台交换机的统计信息"></p>
 <p>后者的作用是创建多个线程，每个线程通过调用getSwitchStatistics(DatapathId switchId, OFStatsType statsType)方法负责获取一台交换机的统计消息，从而实现并行获取网络中所有交换机的统计消息。该方法的实现如图4所示。</p>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\Statistics模块中getSwitchStatistics方法并行获取所有交换机的统计信息.png" srcset="/img/loading.gif" alt="图4 Statistics模块中getSwitchStatistics方法并行获取所有交换机的统计信息"></p>
-<h3 id="linkdiscovery包分析"><a href="#linkdiscovery包分析" class="headerlink" title="linkdiscovery包分析"></a>linkdiscovery包分析</h3><p>如图5所示，src/main/java目录下，net.floodlightcontroller.linkdiscovery包中包含了链路的定义Link.java，可获取拓扑中所有链路的接口ILinkDiscoveryService.java。<br><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\net.floodlightcontroller.linkdiscovery包.png" srcset="/img/loading.gif" alt="图5  net.floodlightcontroller.linkdiscovery包"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5CStatistics%E6%A8%A1%E5%9D%97%E4%B8%ADgetSwitchStatistics%E6%96%B9%E6%B3%95%E5%B9%B6%E8%A1%8C%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E4%BA%A4%E6%8D%A2%E6%9C%BA%E7%9A%84%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF.png" srcset="/img/loading.gif" alt="图4 Statistics模块中getSwitchStatistics方法并行获取所有交换机的统计信息"></p>
+<h3 id="linkdiscovery包分析"><a href="#linkdiscovery包分析" class="headerlink" title="linkdiscovery包分析"></a>linkdiscovery包分析</h3><p>如图5所示，src/main/java目录下，net.floodlightcontroller.linkdiscovery包中包含了链路的定义Link.java，可获取拓扑中所有链路的接口ILinkDiscoveryService.java。<br><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5Cnet.floodlightcontroller.linkdiscovery%E5%8C%85.png" srcset="/img/loading.gif" alt="图5  net.floodlightcontroller.linkdiscovery包"></p>
 <p>如图6所示，在Floodlight中，由起始交换机DPID和端口ID以及终点交换机DPID和端口ID定义一条链路，可见链路是指交换机之间的连接关系，不包含主机与交换机之间的连接关系，同时链路是有方向的。</p>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\Link类定义.png" srcset="/img/loading.gif" alt="图6  Link类定义"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5CLink%E7%B1%BB%E5%AE%9A%E4%B9%89.png" srcset="/img/loading.gif" alt="图6  Link类定义"></p>
 <p>如图7所示，ILinkDiscoveryService接口中定义了许多获取链路、链路类型等方法，其中</p>
-<pre><code class="java"> public Map&lt;Link, LinkInfo&gt; getLinks();
-</code></pre>
+<pre><code class="java"> public Map&lt;Link, LinkInfo&gt; getLinks();</code></pre>
 <p>方法可用于获取拓扑中所有的链路。</p>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\ILinkDiscoveryService接口定义.png" srcset="/img/loading.gif" alt="图7  ILinkDiscoveryService接口定义"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5CILinkDiscoveryService%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89.png" srcset="/img/loading.gif" alt="图7  ILinkDiscoveryService接口定义"></p>
 <h3 id="链路丢包率测量模块设计思路"><a href="#链路丢包率测量模块设计思路" class="headerlink" title="链路丢包率测量模块设计思路"></a>链路丢包率测量模块设计思路</h3><p>链路丢包率测量模块将在StatisticsCollector模块的基础上实现，其设计思路：  </p>
 <pre><code>a.通过getSwitchStatistics方法发起查询，获取所有交换机的Port-Stats消息，并根据交换机DPID和其Port-Stats消息的映射关系存储在replies哈希表中
 b.通过ILinkDiscoveryService接口获取所有链路，存储在links集合中
 c.循环遍历links，分别从previousReplies和replies中获取上一次查询以及本次查询的Port-Stats消息，并从中提取tx_packets、rx_packets字段根据公式（1）计算当前遍历的链路的丢包率，将链路和链路丢包率的映射关系存储在linkLossResults哈希表中
 d.用replies更新previousReplies
-e.根据linkLossResults打印链路丢包率
-</code></pre><p><img src="\imgs\Network_Measurement_Based_On_OpenFlow_Message\链路丢包率计算公式.png" srcset="/img/loading.gif" alt="链路丢包率计算公式"></p>
+e.根据linkLossResults打印链路丢包率</code></pre><p><img src="%5Cimgs%5CNetwork_Measurement_Based_On_OpenFlow_Message%5C%E9%93%BE%E8%B7%AF%E4%B8%A2%E5%8C%85%E7%8E%87%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F.png" srcset="/img/loading.gif" alt="链路丢包率计算公式"></p>
 <h2 id="0x04-链路丢包率测量模块实现"><a href="#0x04-链路丢包率测量模块实现" class="headerlink" title="0x04 链路丢包率测量模块实现"></a>0x04 链路丢包率测量模块实现</h2><ol>
 <li><p>在Eclipse中，src/main/java目录下，net.floodlightcontroller.statistics包中新建一个LinkLoss类，用于存储某条链路在查询间隙接收、发送数据包个数，以及丢包率，该类的实现代码如下:  </p>
 <pre><code class="java"> public class LinkLoss {
@@ -235,8 +246,7 @@ e.根据linkLossResults打印链路丢包率
      public String toString() {
          return &quot;(&quot; + link.getSrc() + &quot;/&quot; + link.getSrcPort() + &quot;) -&gt; (&quot; + link.getDst() + &quot;/&quot; + link.getDstPort() + &quot;) TxPackets:&quot; + txPackets.getValue() + &quot; RxPackets:&quot; + rxPackets.getValue() + &quot; LinkLoss:&quot; + linkLoss.getValue() + &quot;%&quot;;        
      }
- }
-</code></pre>
+ }</code></pre>
 </li>
 </ol>
 <ol start="2">
@@ -254,8 +264,7 @@ e.根据linkLossResults打印链路丢包率
  private static HashMap&lt;Link, LinkLoss&gt; linkLossResults = new HashMap&lt;Link, LinkLoss&gt;();
 
  //保存查询次数
- private static int lookupCounter = 0;
-</code></pre>
+ private static int lookupCounter = 0;</code></pre>
 </li>
 </ol>
 <ol start="3">
@@ -299,8 +308,7 @@ e.根据linkLossResults打印链路丢包率
          }
      }
      log.info(&quot;Port statistics collection interval set to {}s&quot;, portStatsInterval);
- }
-</code></pre>
+ }</code></pre>
 </li>
 </ol>
 <ol start="4">
@@ -411,38 +419,32 @@ e.根据linkLossResults打印链路丢包率
              log.info(result);
          }
      }//function
- }//class
-</code></pre>
+ }//class</code></pre>
 </li>
 </ol>
 <ol start="5">
 <li><p>在Floodlight源码src/main/resources目录下的floodlightdefault.properties文件中，修改代码设置StatisticsCollector模块随着Floodlight控制器一起启动。 </p>
-<pre><code class="java"> net.floodlightcontroller.statistics.StatisticsCollector.enable=TRUE
-</code></pre>
+<pre><code class="java"> net.floodlightcontroller.statistics.StatisticsCollector.enable=TRUE</code></pre>
 </li>
 </ol>
-<h2 id="0x05-Mininet搭建拓扑测量链路丢包率"><a href="#0x05-Mininet搭建拓扑测量链路丢包率" class="headerlink" title="0x05 Mininet搭建拓扑测量链路丢包率"></a>0x05 Mininet搭建拓扑测量链路丢包率</h2><p>假设拓扑如图8所示，使用带有链路丢包率测量模块的Floodlight控制器测量拓扑中所有交换机之间链路的丢包率。<br><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\链路丢包率测试拓扑.png" srcset="/img/loading.gif" alt="图8 链路丢包率测试拓扑"></p>
+<h2 id="0x05-Mininet搭建拓扑测量链路丢包率"><a href="#0x05-Mininet搭建拓扑测量链路丢包率" class="headerlink" title="0x05 Mininet搭建拓扑测量链路丢包率"></a>0x05 Mininet搭建拓扑测量链路丢包率</h2><p>假设拓扑如图8所示，使用带有链路丢包率测量模块的Floodlight控制器测量拓扑中所有交换机之间链路的丢包率。<br><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5C%E9%93%BE%E8%B7%AF%E4%B8%A2%E5%8C%85%E7%8E%87%E6%B5%8B%E8%AF%95%E6%8B%93%E6%89%91.png" srcset="/img/loading.gif" alt="图8 链路丢包率测试拓扑"></p>
 <ol>
 <li><p>新开终端编译并启动Floodlight控制器。  </p>
 <pre><code class="Shell"> cd floodlight
  ant
- java –jar target/floodlight.jar
-</code></pre>
+ java –jar target/floodlight.jar</code></pre>
 </li>
 <li><p>新开终端启动Mininet，构造如图8所示的测试拓扑。  </p>
-<pre><code class="Shell"> sudo mn --controller=remote,ip=127.0.0.1 --switch ovsk,protocols=OpenFlow13 --mac --topo=linear,2
-</code></pre>
+<pre><code class="Shell"> sudo mn --controller=remote,ip=127.0.0.1 --switch ovsk,protocols=OpenFlow13 --mac --topo=linear,2</code></pre>
 </li>
 <li><p>在Mininet交互模式下打开主机H1的终端。  </p>
-<pre><code class="Shell"> mininet &gt; xterm h1
-</code></pre>
+<pre><code class="Shell"> mininet &gt; xterm h1</code></pre>
 </li>
 <li><p>在主机H1终端上使用hping3发包工具以500pps（packet per second）的速率发送数据包给主机H2，Floodlight控制器终端显示测量的S1与S2之间链路丢包率结果如图9所示。  </p>
-<pre><code class="Shell"> hping3 –i u2000 10.0.0.2
-</code></pre>
+<pre><code class="Shell"> hping3 –i u2000 10.0.0.2</code></pre>
 </li>
 </ol>
-<p><img src="\imgs\Floodlight_Link_Packet_Loss_Rate_Measurement\S1与S2之间链路丢包率测量结果.png" srcset="/img/loading.gif" alt="图9 S1与S2之间链路丢包率测量结果"></p>
+<p><img src="%5Cimgs%5CFloodlight_Link_Packet_Loss_Rate_Measurement%5CS1%E4%B8%8ES2%E4%B9%8B%E9%97%B4%E9%93%BE%E8%B7%AF%E4%B8%A2%E5%8C%85%E7%8E%87%E6%B5%8B%E9%87%8F%E7%BB%93%E6%9E%9C.png" srcset="/img/loading.gif" alt="图9 S1与S2之间链路丢包率测量结果"></p>
 <h2 id="0x06-参考"><a href="#0x06-参考" class="headerlink" title="0x06 参考"></a>0x06 参考</h2><ul>
 <li><a href="https://chentingz.github.io/2020/02/12/基于OpenFlow消息的网络测量方法/">基于OpenFlow消息的网络测量方法 </a></li>
 </ul>
@@ -501,7 +503,8 @@ e.根据linkLossResults打印链路丢包率
   
 
   
-    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -513,7 +516,8 @@ e.根据linkLossResults打印链路丢包率
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
@@ -562,19 +566,19 @@ e.根据linkLossResults打印链路丢包率
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js"></script>
-<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
-<script src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
 
 
-  <script src="/js/lazyload.js"></script>
+  <script  src="/js/lazyload.js" ></script>
 
 
 
   
-  <script src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js"></script>
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
   <script>
     $(document).ready(function () {
       var navHeight = $('#navbar').height();
@@ -623,7 +627,7 @@ e.根据linkLossResults打印链路丢包率
 
 
 
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 <!-- Plugins -->
@@ -660,7 +664,7 @@ e.根据linkLossResults打印链路丢包率
 
 
 
-  <script src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js"></script>
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
   <script>
     $(document).ready(function () {
       $('pre').addClass('prettyprint  linenums');
@@ -670,7 +674,7 @@ e.根据linkLossResults打印链路丢包率
 
 
 
-  <script src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js"></script>
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
   <script>
     var typed = new Typed('#subtitle', {
       strings: [
@@ -690,7 +694,7 @@ e.根据linkLossResults打印链路丢包率
 
 
 
-  <script src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js"></script>
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
   <script>
     anchors.options = {
       placement: "right",
@@ -707,7 +711,7 @@ e.根据linkLossResults打印链路丢包率
 
 
 
-  <script src="/js/local-search.js"></script>
+  <script  src="/js/local-search.js" ></script>
   <script>
     var path = "/local-search.xml";
     var inputArea = document.querySelector("#local-search-input");
@@ -719,7 +723,7 @@ e.根据linkLossResults打印链路丢包率
 
 
 
-  <script src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
   <script>
     $("#post img:not(.no-zoom img, img[no-zoom])").each(
       function () {

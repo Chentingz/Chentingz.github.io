@@ -5,7 +5,7 @@
 
 
 
-<head><meta name="generator" content="Hexo 3.8.0">
+<head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="/img/favicon.png">
@@ -39,9 +39,12 @@
   <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
-    <a class="navbar-brand" href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -73,9 +76,18 @@
             <a class="nav-link" href="/categories/">分类</a>
           </li>
         
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/footprints/">足迹</a>
+          </li>
+        
         
           <li class="nav-item" id="search-btn">
-            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
           </li>
         
       </ul>
@@ -106,7 +118,7 @@
                   
                   <span class="post-meta">
                     <i class="far fa-chart-bar"></i>
-                    656 字
+                    648 字
                   </span>
                 
 
@@ -142,7 +154,8 @@
         <div class="post-content mx-auto" id="post">
           
           <div class="markdown-body">
-            <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>Floodlight是我在学习SDN过程中最早接触的控制器，相比较于ODL和ONOS，它从安装到导入IDE再到使用都十分容易，官方文档也写的很清楚，对新手极其友好。<br>趁着最近给别人搭建SDN实验环境的机会，总结一下在Ubuntu上如何搭建一个Floodlight x Mininet的SDN环境。<br><a id="more"></a></p>
+            <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>Floodlight是我在学习SDN过程中最早接触的控制器，相比较于ODL和ONOS，它从安装到导入IDE再到使用都十分容易，官方文档也写的很清楚，对新手极其友好。<br>趁着最近给别人搭建SDN实验环境的机会，总结一下在Ubuntu上如何搭建一个Floodlight x Mininet的SDN环境。</p>
+<a id="more"></a>
 <h2 id="0x01-目录"><a href="#0x01-目录" class="headerlink" title="0x01 目录"></a>0x01 目录</h2><ul>
 <li><a href="#0x00-前言">0x00 前言</a></li>
 <li><a href="#0x01-目录">0x01 目录</a></li>
@@ -188,8 +201,7 @@
 <li>JDK</li>
 <li>Apache Ant</li>
 </ul>
-<h3 id="Git安装"><a href="#Git安装" class="headerlink" title="Git安装"></a>Git安装</h3><pre><code>sudo apt-get install git
-</code></pre><h3 id="JDK安装"><a href="#JDK安装" class="headerlink" title="JDK安装"></a>JDK安装</h3><p>Floodlight v1.2以后使用JDK8，这里选择Oracle的JDK8进行下载，在网上找到Oracle JDK8的linux压缩包进行下载并解压到home目录下，然后配置环境变量</p>
+<h3 id="Git安装"><a href="#Git安装" class="headerlink" title="Git安装"></a>Git安装</h3><pre><code>sudo apt-get install git</code></pre><h3 id="JDK安装"><a href="#JDK安装" class="headerlink" title="JDK安装"></a>JDK安装</h3><p>Floodlight v1.2以后使用JDK8，这里选择Oracle的JDK8进行下载，在网上找到Oracle JDK8的linux压缩包进行下载并解压到home目录下，然后配置环境变量</p>
 <pre><code># 配置环境变量
 sudo gedit ~/.bashrc
 
@@ -198,47 +210,37 @@ export JAVA_HOME=/home/ubuntu/jdk1.8.0_141
 export PATH=${JAVA_HOME}/bin:$PATH
 
 # 查看配置是否成功，若显示java的版本，则配置成功
-java -version
-</code></pre><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/检查JDK是否成功安装.png" srcset="/img/loading.gif" alt="检查JDK是否成功安装"><br>参考：<a href="https://blog.csdn.net/EahanZhang/article/details/88085561" target="_blank" rel="noopener">https://blog.csdn.net/EahanZhang/article/details/88085561</a>  </p>
-<h3 id="Apache-Ant安装"><a href="#Apache-Ant安装" class="headerlink" title="Apache Ant安装"></a>Apache Ant安装</h3><pre><code>sudo apt-get install ant
-</code></pre><h2 id="0x03-Floodlight安装"><a href="#0x03-Floodlight安装" class="headerlink" title="0x03 Floodlight安装"></a>0x03 Floodlight安装</h2><h3 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h3><pre><code>git clone git://github.com/floodlight/floodlight.git
-</code></pre><h3 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h3><pre><code>cd floodlight
-ant
-</code></pre><p>显示Build Successful，则说明编译成功</p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/Floodlight源码编译.png" srcset="/img/loading.gif" alt="Floodlight源码编译"></p>
+java -version</code></pre><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E6%A3%80%E6%9F%A5JDK%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F%E5%AE%89%E8%A3%85.png" srcset="/img/loading.gif" alt="检查JDK是否成功安装"><br>参考：<a href="https://blog.csdn.net/EahanZhang/article/details/88085561" target="_blank" rel="noopener">https://blog.csdn.net/EahanZhang/article/details/88085561</a>  </p>
+<h3 id="Apache-Ant安装"><a href="#Apache-Ant安装" class="headerlink" title="Apache Ant安装"></a>Apache Ant安装</h3><pre><code>sudo apt-get install ant</code></pre><h2 id="0x03-Floodlight安装"><a href="#0x03-Floodlight安装" class="headerlink" title="0x03 Floodlight安装"></a>0x03 Floodlight安装</h2><h3 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h3><pre><code>git clone git://github.com/floodlight/floodlight.git</code></pre><h3 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h3><pre><code>cd floodlight
+ant</code></pre><p>显示Build Successful，则说明编译成功</p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/Floodlight%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91.png" srcset="/img/loading.gif" alt="Floodlight源码编译"></p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide#InstallationGuide-Linux" target="_blank" rel="noopener">https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide#InstallationGuide-Linux</a></p>
-<h2 id="0x04-Mininet安装"><a href="#0x04-Mininet安装" class="headerlink" title="0x04 Mininet安装"></a>0x04 Mininet安装</h2><h3 id="源码下载-1"><a href="#源码下载-1" class="headerlink" title="源码下载"></a>源码下载</h3><pre><code>git clone git://github.com/mininet/mininet
-</code></pre><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><pre><code>cd mininet/util/
-sudo ./install.sh
-</code></pre><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><pre><code>sudo mn --test pingall
-</code></pre><p><img src="/imgs/Floodlight_x_Mininet_Environment_Setup_Tutorial/测试Minine是否安装成功.png" srcset="/img/loading.gif" alt="测试Minine是否安装成功">  </p>
+<h2 id="0x04-Mininet安装"><a href="#0x04-Mininet安装" class="headerlink" title="0x04 Mininet安装"></a>0x04 Mininet安装</h2><h3 id="源码下载-1"><a href="#源码下载-1" class="headerlink" title="源码下载"></a>源码下载</h3><pre><code>git clone git://github.com/mininet/mininet</code></pre><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><pre><code>cd mininet/util/
+sudo ./install.sh</code></pre><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><pre><code>sudo mn --test pingall</code></pre><p><img src="/imgs/Floodlight_x_Mininet_Environment_Setup_Tutorial/%E6%B5%8B%E8%AF%95Minine%E6%98%AF%E5%90%A6%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F.png" srcset="/img/loading.gif" alt="测试Minine是否安装成功">  </p>
 <h3 id="参考-1"><a href="#参考-1" class="headerlink" title="参考"></a>参考</h3><p><a href="http://mininet.org/download/" target="_blank" rel="noopener">http://mininet.org/download/</a>  </p>
 <h2 id="0x05-测试环境"><a href="#0x05-测试环境" class="headerlink" title="0x05 测试环境"></a>0x05 测试环境</h2><h3 id="运行Floodlight"><a href="#运行Floodlight" class="headerlink" title="运行Floodlight"></a>运行Floodlight</h3><pre><code>java -jar target/floodlight.jar
 
-# 该命令要在floodlight目录下运行
-</code></pre><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/运行Floodlight.png" srcset="/img/loading.gif" alt="运行Floodlight"></p>
+# 该命令要在floodlight目录下运行</code></pre><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E8%BF%90%E8%A1%8CFloodlight.png" srcset="/img/loading.gif" alt="运行Floodlight"></p>
 <h3 id="运行Mininet"><a href="#运行Mininet" class="headerlink" title="运行Mininet"></a>运行Mininet</h3><p>新开终端，运行命令创建如下拓扑:</p>
 <p><strong>h1 - sw1 - h2</strong></p>
 <pre><code>sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13
 
-# 如果Floodlight和Mininet分别部署在不同主机上，则上面的IP地址改为Floodlight所在主机的IP地址
-</code></pre><h3 id="测试Floodlight和Mininet的连通性"><a href="#测试Floodlight和Mininet的连通性" class="headerlink" title="测试Floodlight和Mininet的连通性"></a>测试Floodlight和Mininet的连通性</h3><p>在运行Mininet的终端上，输入</p>
-<pre><code>pingall
-</code></pre><p>如果主机之间能够ping通，说明Floodlight与Mininet之间连通<br><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/pingall测试主机连通性.png" srcset="/img/loading.gif" alt="pingall测试主机连通性"></p>
-<p>此时还可以在浏览器中打开Floodlight Web GUI进行验证，若显示交换机、主机个数、拓扑，也能说明Floodlight与Mininet之间成功连通<br><a href="http://localhost:8080/ui/pages/index.html" target="_blank" rel="noopener">http://localhost:8080/ui/pages/index.html</a><br><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/Floodlight_Web_GUI_验证FL和Mininet之间连通性.png" srcset="/img/loading.gif" alt="Floodlight_Web_GUI_验证FL和Mininet之间连通性"></p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/Floodlight_Web_GUI_验证FL与Mininet之间连通性-2.png" srcset="/img/loading.gif" alt="Floodlight_Web_GUI_验证FL与Mininet之间连通性-2"></p>
+# 如果Floodlight和Mininet分别部署在不同主机上，则上面的IP地址改为Floodlight所在主机的IP地址</code></pre><h3 id="测试Floodlight和Mininet的连通性"><a href="#测试Floodlight和Mininet的连通性" class="headerlink" title="测试Floodlight和Mininet的连通性"></a>测试Floodlight和Mininet的连通性</h3><p>在运行Mininet的终端上，输入</p>
+<pre><code>pingall</code></pre><p>如果主机之间能够ping通，说明Floodlight与Mininet之间连通<br><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/pingall%E6%B5%8B%E8%AF%95%E4%B8%BB%E6%9C%BA%E8%BF%9E%E9%80%9A%E6%80%A7.png" srcset="/img/loading.gif" alt="pingall测试主机连通性"></p>
+<p>此时还可以在浏览器中打开Floodlight Web GUI进行验证，若显示交换机、主机个数、拓扑，也能说明Floodlight与Mininet之间成功连通<br><a href="http://localhost:8080/ui/pages/index.html" target="_blank" rel="noopener">http://localhost:8080/ui/pages/index.html</a><br><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/Floodlight_Web_GUI_%E9%AA%8C%E8%AF%81FL%E5%92%8CMininet%E4%B9%8B%E9%97%B4%E8%BF%9E%E9%80%9A%E6%80%A7.png" srcset="/img/loading.gif" alt="Floodlight_Web_GUI_验证FL和Mininet之间连通性"></p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/Floodlight_Web_GUI_%E9%AA%8C%E8%AF%81FL%E4%B8%8EMininet%E4%B9%8B%E9%97%B4%E8%BF%9E%E9%80%9A%E6%80%A7-2.png" srcset="/img/loading.gif" alt="Floodlight_Web_GUI_验证FL与Mininet之间连通性-2"></p>
 <h3 id="参考-2"><a href="#参考-2" class="headerlink" title="参考"></a>参考</h3><p><a href="https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide#InstallationGuide-SimulatingANetwork" target="_blank" rel="noopener">https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide#InstallationGuide-SimulatingANetwork</a></p>
-<h2 id="0x06-在Eclipse中运行Floodlight"><a href="#0x06-在Eclipse中运行Floodlight" class="headerlink" title="0x06 在Eclipse中运行Floodlight"></a>0x06 在Eclipse中运行Floodlight</h2><h3 id="下载Eclipse"><a href="#下载Eclipse" class="headerlink" title="下载Eclipse"></a>下载Eclipse</h3><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/下载Eclipse.png" srcset="/img/loading.gif" alt="下载Eclipse"></p>
-<h3 id="安装Eclipse"><a href="#安装Eclipse" class="headerlink" title="安装Eclipse"></a>安装Eclipse</h3><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/解压Eclipse.png" srcset="/img/loading.gif" alt="解压Eclipse"></p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/安装Eclipse-1.png" srcset="/img/loading.gif" alt="安装Eclipse-1"></p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/安装Eclipse-2.png" srcset="/img/loading.gif" alt="安装Eclipse-2"></p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/安装Eclipse-3.png" srcset="/img/loading.gif" alt="安装Eclipse-3"></p>
-<h3 id="运行Eclipse"><a href="#运行Eclipse" class="headerlink" title="运行Eclipse"></a>运行Eclipse</h3><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/运行Eclipse.png" srcset="/img/loading.gif" alt="运行Eclipse"></p>
-<h3 id="导入Floodlight源码"><a href="#导入Floodlight源码" class="headerlink" title="导入Floodlight源码"></a>导入Floodlight源码</h3><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/导入Floodlight源码-1.png" srcset="/img/loading.gif" alt="导入Floodlight源码-1"></p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/导入Floodlight源码-2.png" srcset="/img/loading.gif" alt="导入Floodlight源码-2"></p>
-<h3 id="配置启动项"><a href="#配置启动项" class="headerlink" title="配置启动项"></a>配置启动项</h3><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/配置启动项-1.png" srcset="/img/loading.gif" alt="配置启动项-1"></p>
-<p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/配置启动项-2.png" srcset="/img/loading.gif" alt="配置启动项-2"></p>
-<h3 id="运行Floodlight-1"><a href="#运行Floodlight-1" class="headerlink" title="运行Floodlight"></a>运行Floodlight</h3><p><img src="/imgs\Floodlight_x_Mininet_Environment_Setup_Tutorial/在Eclipse上运行Floodlight.png" srcset="/img/loading.gif" alt="在Eclipse上运行Floodlight"></p>
+<h2 id="0x06-在Eclipse中运行Floodlight"><a href="#0x06-在Eclipse中运行Floodlight" class="headerlink" title="0x06 在Eclipse中运行Floodlight"></a>0x06 在Eclipse中运行Floodlight</h2><h3 id="下载Eclipse"><a href="#下载Eclipse" class="headerlink" title="下载Eclipse"></a>下载Eclipse</h3><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E4%B8%8B%E8%BD%BDEclipse.png" srcset="/img/loading.gif" alt="下载Eclipse"></p>
+<h3 id="安装Eclipse"><a href="#安装Eclipse" class="headerlink" title="安装Eclipse"></a>安装Eclipse</h3><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E8%A7%A3%E5%8E%8BEclipse.png" srcset="/img/loading.gif" alt="解压Eclipse"></p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E5%AE%89%E8%A3%85Eclipse-1.png" srcset="/img/loading.gif" alt="安装Eclipse-1"></p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E5%AE%89%E8%A3%85Eclipse-2.png" srcset="/img/loading.gif" alt="安装Eclipse-2"></p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E5%AE%89%E8%A3%85Eclipse-3.png" srcset="/img/loading.gif" alt="安装Eclipse-3"></p>
+<h3 id="运行Eclipse"><a href="#运行Eclipse" class="headerlink" title="运行Eclipse"></a>运行Eclipse</h3><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E8%BF%90%E8%A1%8CEclipse.png" srcset="/img/loading.gif" alt="运行Eclipse"></p>
+<h3 id="导入Floodlight源码"><a href="#导入Floodlight源码" class="headerlink" title="导入Floodlight源码"></a>导入Floodlight源码</h3><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E5%AF%BC%E5%85%A5Floodlight%E6%BA%90%E7%A0%81-1.png" srcset="/img/loading.gif" alt="导入Floodlight源码-1"></p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E5%AF%BC%E5%85%A5Floodlight%E6%BA%90%E7%A0%81-2.png" srcset="/img/loading.gif" alt="导入Floodlight源码-2"></p>
+<h3 id="配置启动项"><a href="#配置启动项" class="headerlink" title="配置启动项"></a>配置启动项</h3><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E9%85%8D%E7%BD%AE%E5%90%AF%E5%8A%A8%E9%A1%B9-1.png" srcset="/img/loading.gif" alt="配置启动项-1"></p>
+<p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E9%85%8D%E7%BD%AE%E5%90%AF%E5%8A%A8%E9%A1%B9-2.png" srcset="/img/loading.gif" alt="配置启动项-2"></p>
+<h3 id="运行Floodlight-1"><a href="#运行Floodlight-1" class="headerlink" title="运行Floodlight"></a>运行Floodlight</h3><p><img src="/imgs%5CFloodlight_x_Mininet_Environment_Setup_Tutorial/%E5%9C%A8Eclipse%E4%B8%8A%E8%BF%90%E8%A1%8CFloodlight.png" srcset="/img/loading.gif" alt="在Eclipse上运行Floodlight"></p>
 <h3 id="参考-3"><a href="#参考-3" class="headerlink" title="参考"></a>参考</h3><p><a href="https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide#InstallationGuide-EclipseIDE" target="_blank" rel="noopener">https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide#InstallationGuide-EclipseIDE</a></p>
 
             <hr>
@@ -295,7 +297,8 @@ sudo ./install.sh
   
 
   
-    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -307,7 +310,8 @@ sudo ./install.sh
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
@@ -356,19 +360,19 @@ sudo ./install.sh
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js"></script>
-<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
-<script src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
 
 
-  <script src="/js/lazyload.js"></script>
+  <script  src="/js/lazyload.js" ></script>
 
 
 
   
-  <script src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js"></script>
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
   <script>
     $(document).ready(function () {
       var navHeight = $('#navbar').height();
@@ -417,7 +421,7 @@ sudo ./install.sh
 
 
 
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 <!-- Plugins -->
@@ -454,7 +458,7 @@ sudo ./install.sh
 
 
 
-  <script src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js"></script>
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
   <script>
     $(document).ready(function () {
       $('pre').addClass('prettyprint  linenums');
@@ -464,7 +468,7 @@ sudo ./install.sh
 
 
 
-  <script src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js"></script>
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
   <script>
     var typed = new Typed('#subtitle', {
       strings: [
@@ -484,7 +488,7 @@ sudo ./install.sh
 
 
 
-  <script src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js"></script>
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
   <script>
     anchors.options = {
       placement: "right",
@@ -501,7 +505,7 @@ sudo ./install.sh
 
 
 
-  <script src="/js/local-search.js"></script>
+  <script  src="/js/local-search.js" ></script>
   <script>
     var path = "/local-search.xml";
     var inputArea = document.querySelector("#local-search-input");
@@ -513,7 +517,7 @@ sudo ./install.sh
 
 
 
-  <script src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
   <script>
     $("#post img:not(.no-zoom img, img[no-zoom])").each(
       function () {

@@ -5,7 +5,7 @@
 
 
 
-<head><meta name="generator" content="Hexo 3.8.0">
+<head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="/img/favicon.png">
@@ -39,9 +39,12 @@
   <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
-    <a class="navbar-brand" href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <div class="animated-icon"><span></span><span></span><span></span></div>
     </button>
 
@@ -73,9 +76,18 @@
             <a class="nav-link" href="/categories/">分类</a>
           </li>
         
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/footprints/">足迹</a>
+          </li>
+        
         
           <li class="nav-item" id="search-btn">
-            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
           </li>
         
       </ul>
@@ -157,15 +169,16 @@
 <li><a href="#秘密信息嵌入">秘密信息嵌入</a></li>
 <li><a href="#秘密信息提取">秘密信息提取</a></li>
 <li><a href="#加噪处理">加噪处理</a><a id="more"></a>
+
 </li>
 </ul>
 </li>
 </ul>
 <h2 id="0x01-问题描述"><a href="#0x01-问题描述" class="headerlink" title="0x01 问题描述"></a>0x01 问题描述</h2><p>基于LSB算法实现在320x240的灰度图像上隐藏秘密信息，并分析LSB算法的健壮性（抗攻击）。</p>
 <h2 id="0x02-LSB算法原理"><a href="#0x02-LSB算法原理" class="headerlink" title="0x02 LSB算法原理"></a>0x02 LSB算法原理</h2><p>该算法包含秘密信息嵌入和提取两部分。嵌入：将二进制表示的秘密信息中的每一位，按照某种顺序（例如先按列再按行，如图1所示）依次存储在载体图像像素值的最低位上。提取：按照嵌入时的顺序依次从嵌有秘密信息的载体图像上提取像素值的最低位，将其组合后即可得到秘密信息。</p>
-<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/LSB算法原理.png" srcset="/img/loading.gif" alt="图1 LSB算法原理"></p>
+<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/LSB%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86.png" srcset="/img/loading.gif" alt="图1 LSB算法原理"></p>
 <h2 id="0x03-LSB算法实现"><a href="#0x03-LSB算法实现" class="headerlink" title="0x03 LSB算法实现"></a>0x03 LSB算法实现</h2><p>使用Python编码实现基于LSB算法的秘密信息嵌入与提取。秘密信息嵌入算法如图2所示，秘密信息提取算法如图3所示。LSB算法完整代码：<a href="https://github.com/Chentingz/LSB-Steganography" target="_blank" rel="noopener">https://github.com/Chentingz/LSB-Steganography</a></p>
-<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/秘密信息嵌入算法流程图.png" srcset="/img/loading.gif" alt="图2 秘密信息嵌入算法流程图"><br><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/秘密信息提取算法流程图.png" srcset="/img/loading.gif" alt="图3 秘密信息提取算法流程图"></p>
+<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/%E7%A7%98%E5%AF%86%E4%BF%A1%E6%81%AF%E5%B5%8C%E5%85%A5%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%E5%9B%BE.png" srcset="/img/loading.gif" alt="图2 秘密信息嵌入算法流程图"><br><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/%E7%A7%98%E5%AF%86%E4%BF%A1%E6%81%AF%E6%8F%90%E5%8F%96%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%E5%9B%BE.png" srcset="/img/loading.gif" alt="图3 秘密信息提取算法流程图"></p>
 <h2 id="0x04-实验结果分析"><a href="#0x04-实验结果分析" class="headerlink" title="0x04 实验结果分析"></a>0x04 实验结果分析</h2><h3 id="实验数据"><a href="#实验数据" class="headerlink" title="实验数据"></a>实验数据</h3><ul>
 <li>秘密信息：”secret text is hidden in image using LSB algorithm\n2019.11.21”</li>
 <li>原始载体图像名：raw_img.bmp</li>
@@ -177,15 +190,15 @@
 <h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><ul>
 <li>嵌入算法：按照图2的算法从文件中读取秘密信息后嵌入到原始载体图像中，从图5可见，嵌入前后的载体图像无明显变化。</li>
 </ul>
-<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/嵌入秘密信息前后的载体图像对比.png" srcset="/img/loading.gif" alt="图5 嵌入秘密信息前后的载体图像对比"></p>
+<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/%E5%B5%8C%E5%85%A5%E7%A7%98%E5%AF%86%E4%BF%A1%E6%81%AF%E5%89%8D%E5%90%8E%E7%9A%84%E8%BD%BD%E4%BD%93%E5%9B%BE%E5%83%8F%E5%AF%B9%E6%AF%94.png" srcset="/img/loading.gif" alt="图5 嵌入秘密信息前后的载体图像对比"></p>
 <ul>
 <li>提取算法：按照图3算法对嵌入秘密信息的载体图像提取出秘密信息，由图6可见，提取结果与嵌入前的秘密信息一致。</li>
 </ul>
-<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/秘密信息提取结果.png" srcset="/img/loading.gif" alt="图6 秘密信息提取结果"></p>
+<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/%E7%A7%98%E5%AF%86%E4%BF%A1%E6%81%AF%E6%8F%90%E5%8F%96%E7%BB%93%E6%9E%9C.png" srcset="/img/loading.gif" alt="图6 秘密信息提取结果"></p>
 <h2 id="0x05-健壮性分析"><a href="#0x05-健壮性分析" class="headerlink" title="0x05 健壮性分析"></a>0x05 健壮性分析</h2><p>对嵌有秘密信息的载体图像分别采用高斯噪声和椒盐噪声处理，然后提取秘密信息，观察秘密信息是否遭到破坏，噪声处理前后的图像对比如图7所示。</p>
-<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/噪声处理前后的载体图像对比.png" srcset="/img/loading.gif" alt="图7 噪声处理前后的载体图像对比"></p>
+<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/%E5%99%AA%E5%A3%B0%E5%A4%84%E7%90%86%E5%89%8D%E5%90%8E%E7%9A%84%E8%BD%BD%E4%BD%93%E5%9B%BE%E5%83%8F%E5%AF%B9%E6%AF%94.png" srcset="/img/loading.gif" alt="图7 噪声处理前后的载体图像对比"></p>
 <p>采用图3中的提取算法，分别对高斯噪声和椒盐噪声处理过的图像提取信息，提取结果如图8所示，可见对基于LSB嵌入秘密信息的图像进行噪声处理后，秘密信息将遭到不同程度的破坏，LSB算法抗攻击性差。</p>
-<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/噪声处理后的图像秘密信息提取结果.png" srcset="/img/loading.gif" alt="图8 噪声处理后的图像秘密信息提取结果"></p>
+<p><img src="/imgs/Info_Hiding_Using_LSB_Algorithm/%E5%99%AA%E5%A3%B0%E5%A4%84%E7%90%86%E5%90%8E%E7%9A%84%E5%9B%BE%E5%83%8F%E7%A7%98%E5%AF%86%E4%BF%A1%E6%81%AF%E6%8F%90%E5%8F%96%E7%BB%93%E6%9E%9C.png" srcset="/img/loading.gif" alt="图8 噪声处理后的图像秘密信息提取结果"></p>
 <h2 id="0x06-关键代码"><a href="#0x06-关键代码" class="headerlink" title="0x06 关键代码"></a>0x06 关键代码</h2><h3 id="秘密信息嵌入"><a href="#秘密信息嵌入" class="headerlink" title="秘密信息嵌入"></a>秘密信息嵌入</h3><pre><code class="python">from PIL import Image
 eof_str = &quot;00000000&quot;
 &quot;&quot;&quot;
@@ -238,8 +251,7 @@ def mod_lsb(value, bit):
     lsb = str[len(str)-1]
     if lsb != bit :
         str = str[0:len(str)-1] + bit
-    return int(str, 2)
-</code></pre>
+    return int(str, 2)</code></pre>
 <h3 id="秘密信息提取"><a href="#秘密信息提取" class="headerlink" title="秘密信息提取"></a>秘密信息提取</h3><pre><code class="python">from PIL import Image
 eof = chr(int(eof_str, 2))
 &quot;&quot;&quot;
@@ -277,8 +289,7 @@ def get_text_from_image(mod_img):
 def get_lsb(value):
     str = bin(value).replace(&#39;0b&#39;, &#39;&#39;).zfill(8)
     lsb = str[len(str)-1]
-    return lsb
-</code></pre>
+    return lsb</code></pre>
 <h3 id="加噪处理"><a href="#加噪处理" class="headerlink" title="加噪处理"></a>加噪处理</h3><pre><code class="python">import cv2
 import matplotlib.pyplot as plt
 import skimage.util as ski
@@ -320,8 +331,7 @@ def noise():
     # 保存对比图
     plt.savefig(img_compare_path)
     # 显示对比图
-    plt.show()
-</code></pre>
+    plt.show()</code></pre>
 
             <hr>
           </div>
@@ -377,7 +387,8 @@ def noise():
   
 
   
-    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
@@ -389,7 +400,8 @@ def noise():
       <div class="modal-body mx-3">
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
@@ -438,19 +450,19 @@ def noise():
 </footer>
 
 <!-- SCRIPTS -->
-<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js"></script>
-<script src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
-<script src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js"></script>
-<script src="/js/main.js"></script>
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
 
 
-  <script src="/js/lazyload.js"></script>
+  <script  src="/js/lazyload.js" ></script>
 
 
 
   
-  <script src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js"></script>
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
   <script>
     $(document).ready(function () {
       var navHeight = $('#navbar').height();
@@ -499,7 +511,7 @@ def noise():
 
 
 
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 <!-- Plugins -->
@@ -536,7 +548,7 @@ def noise():
 
 
 
-  <script src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js"></script>
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
   <script>
     $(document).ready(function () {
       $('pre').addClass('prettyprint  linenums');
@@ -546,7 +558,7 @@ def noise():
 
 
 
-  <script src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js"></script>
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
   <script>
     var typed = new Typed('#subtitle', {
       strings: [
@@ -566,7 +578,7 @@ def noise():
 
 
 
-  <script src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js"></script>
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
   <script>
     anchors.options = {
       placement: "right",
@@ -583,7 +595,7 @@ def noise():
 
 
 
-  <script src="/js/local-search.js"></script>
+  <script  src="/js/local-search.js" ></script>
   <script>
     var path = "/local-search.xml";
     var inputArea = document.querySelector("#local-search-input");
@@ -595,7 +607,7 @@ def noise():
 
 
 
-  <script src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
   <script>
     $("#post img:not(.no-zoom img, img[no-zoom])").each(
       function () {
