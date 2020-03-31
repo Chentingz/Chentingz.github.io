@@ -207,20 +207,20 @@
 </ul>
 <h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01 前言"></a>0x01 前言</h2><p>本文主要参考OpenFlow v1.5.1协议、v1.3.0协议以及SDN相关书籍，对OpenFlow中主要机制（如流表与流水线处理、组表、计量表等）的原理进行解析</p>
 <h2 id="0x02-OpenFlow简介"><a href="#0x02-OpenFlow简介" class="headerlink" title="0x02 OpenFlow简介"></a>0x02 OpenFlow简介</h2><p>OpenFlow由斯坦福大学Nick Mckeown教授提出，为SDN控制平面与数据平面之间提供通信接口标准，以实现SDN网络的转控分离架构。OpenFlow协议允许SDN控制器直接访问和操作数据平面中的网络设备，控制网络转发行为，数据平面采用基于流的方式进行转发。目前由ONF（Open Networking Foundation）负责推广和制定OpenFlow标准，截至本文发表时，最新版本为1.5.1</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow%E7%89%88%E6%9C%AC%E5%8F%98%E8%BF%81.png" srcset="/img/loading.gif" alt="OpenFlow版本变迁"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow%E7%89%88%E6%9C%AC%E5%8F%98%E8%BF%81.png" srcset="/img/loading.gif" alt="OpenFlow版本变迁"></p>
 <h2 id="0x03-SDN与OpenFlow的关系"><a href="#0x03-SDN与OpenFlow的关系" class="headerlink" title="0x03 SDN与OpenFlow的关系"></a>0x03 SDN与OpenFlow的关系</h2><p>可以说OpenFlow是SDN中非常重要的技术，以至于许多人（包括笔者在内）在谈及SDN时就自然联想到OpenFlow。但SDN与OpenFlow不是划等号的关系，而是SDN包含OpenFlow的关系。实际上，SDN有多种实现方案，在ONF SDN方案中OpenFlow充当南向接口的作用。<br>南向接口的定义是控制平面与数据平面之间进行交互的协议，南向接口除了可以采用OpenFlow外，还有许多别的协议，如OF-CONFIG、OVSDB、NETCONF、PCEP、XMPP等等</p>
 <h2 id="0x04-基于OpenFlow的SDN网络工作原理"><a href="#0x04-基于OpenFlow的SDN网络工作原理" class="headerlink" title="0x04 基于OpenFlow的SDN网络工作原理"></a>0x04 基于OpenFlow的SDN网络工作原理</h2><h3 id="传统网络中网络设备的工作过程"><a href="#传统网络中网络设备的工作过程" class="headerlink" title="传统网络中网络设备的工作过程"></a>传统网络中网络设备的工作过程</h3><p>假设主机A向主机B发送IP数据包，且所有路由表和MAC地址表中都有该数据包的相应表项</p>
 <ul>
 <li>路由器之间<strong>运行分布式路由协</strong>议构建路由表。查表成功则<strong>基于目的IP地址转发</strong>；查表失败时，丢弃数据包</li>
 <li>交换机根据<strong>自学习算法</strong>构建MAC地址表。查表成功则<strong>基于目的MAC地址转发</strong>；查表失败时，除入端口外其余所有端口转发出去</li>
 </ul>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E4%BC%A0%E7%BB%9F%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="传统网络中网络设备的工作过程"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E4%BC%A0%E7%BB%9F%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="传统网络中网络设备的工作过程"></p>
 <h3 id="基于OpenFlow的SDN网络中网络设备的工作过程"><a href="#基于OpenFlow的SDN网络中网络设备的工作过程" class="headerlink" title="基于OpenFlow的SDN网络中网络设备的工作过程"></a>基于OpenFlow的SDN网络中网络设备的工作过程</h3><p>假设主机A向主机B发送IP数据包，且<strong>所有流表有该数据包相应表项</strong></p>
 <ul>
 <li>OpenFlow交换机查询流表来转发数据包，查表成功则<strong>基于匹配域（如目的IP地址+源IP地址）转发</strong>；查表失败时，则询问SDN控制器</li>
 <li>流表由SDN控制器来构建</li>
 </ul>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E6%B5%81%E8%A1%A8%E4%B8%8D%E7%A9%BA%E6%97%B6%EF%BC%8C%E5%9F%BA%E4%BA%8EOpenFlow%E7%9A%84SDN%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="流表不空时，基于OpenFlow的SDN网络中网络设备的工作过程"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E6%B5%81%E8%A1%A8%E4%B8%8D%E7%A9%BA%E6%97%B6%EF%BC%8C%E5%9F%BA%E4%BA%8EOpenFlow%E7%9A%84SDN%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="流表不空时，基于OpenFlow的SDN网络中网络设备的工作过程"></p>
 <p>假设主机A向主机B发送IP数据包，且<strong>OpenFlow交换机中流表为空</strong></p>
 <ol>
 <li>OF交换机接收IP数据包</li>
@@ -229,17 +229,17 @@
 <li>控制器为主机A发送给主机B的IP数据包计算路由</li>
 <li>控制器向OF交换机下发流表，使用FlowMod消息承载流表信息，OF交换机接收该消息后安装流表</li>
 <li>控制器向OF交换机发送Packet-Out消息，指示OF交换机按照刚安装好的流表转发IP数据包</li>
-<li>OF交换机收到Packet-Out消息后转发数据包<br><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E6%B5%81%E8%A1%A8%E4%B8%BA%E7%A9%BA%E6%97%B6%EF%BC%8C%E5%9F%BA%E4%BA%8EOpenFlow%E7%9A%84SDN%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="流表为空时，基于OpenFlow的SDN网络中网络设备的工作过程"></li>
+<li>OF交换机收到Packet-Out消息后转发数据包<br><img src="/imgs/Introduction_to_OpenFlow/%E6%B5%81%E8%A1%A8%E4%B8%BA%E7%A9%BA%E6%97%B6%EF%BC%8C%E5%9F%BA%E4%BA%8EOpenFlow%E7%9A%84SDN%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="流表为空时，基于OpenFlow的SDN网络中网络设备的工作过程"></li>
 </ol>
 <h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><ul>
 <li>路由计算、转发规则（流表）下发由控制器完成</li>
 <li>OF交换机只需要按照流表进行转发，查表失败时，通过Pacekt-In消息询问控制器  </li>
 </ul>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E4%BC%A0%E7%BB%9F%E7%BD%91%E7%BB%9C%E4%B8%8EOpenFlow%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E5%AF%B9%E6%AF%94.png" srcset="/img/loading.gif" alt="传统网络与OpenFlow网络中网络设备对比"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E4%BC%A0%E7%BB%9F%E7%BD%91%E7%BB%9C%E4%B8%8EOpenFlow%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%BD%91%E7%BB%9C%E8%AE%BE%E5%A4%87%E5%AF%B9%E6%AF%94.png" srcset="/img/loading.gif" alt="传统网络与OpenFlow网络中网络设备对比"></p>
 <h2 id="0x05-流表与流水线处理"><a href="#0x05-流表与流水线处理" class="headerlink" title="0x05 流表与流水线处理"></a>0x05 流表与流水线处理</h2><h3 id="流"><a href="#流" class="headerlink" title="流"></a>流</h3><p>在介绍流表之前，需要先解释流的概念，流（Flow）就是具有相同特征的数据包集合。例如，源MAC地址为MAC_A，目的MAC地址为MAC_B的所有数据包集合就可以视为一条流，可见流具有方向性。有别于传统网络中路由器基于数据包独立转发的模式，使用OpenFlow的SDN网络是基于流进行转发的，即对相同特征的数据包集合采用同样的处理。</p>
 <h3 id="流表"><a href="#流表" class="headerlink" title="流表"></a>流表</h3><p>流表（Flow Table）是OpenFlow中最重要的一张表，它用于指导OpenFlow交换机对收到的数据包进行转发，相当于二层的MAC地址表和三层的路由表。在OpenFlow 1.1以后的版本中，每台交换机支持使用多张流表，构成流水线处理，从而完成对数据包更为复杂的处理。</p>
 <p>流表由若干条流表项（Flow Entry）组成，流表项结构如下图所示。</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E6%B5%81%E8%A1%A8%E9%A1%B9%E7%BB%93%E6%9E%84.png" srcset="/img/loading.gif" alt="流表项结构">  </p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E6%B5%81%E8%A1%A8%E9%A1%B9%E7%BB%93%E6%9E%84.png" srcset="/img/loading.gif" alt="流表项结构">  </p>
 <ul>
 <li>匹配域（Match Fields）：用于定义某条流，也是流表匹配的依据</li>
 <li>指令（Instructions）：表示对该条流应该如何处理</li>
@@ -250,16 +250,16 @@
 <li>标志（Flags）：用于流表项管理</li>
 </ul>
 <p>流表项最为重要的两项为匹配域和指令，当OpenFlow交换机收到一个数据包，将它包头解析后与流表中流表项匹配域进行匹配，匹配成功则执行指令，因此流表可以简化理解为key-value形式的{匹配域-指令}表。</p>
-<h4 id="匹配域"><a href="#匹配域" class="headerlink" title="匹配域"></a>匹配域</h4><p>OpenFlow提供丰富的匹配域字段来定义不同粒度的流，如可以基于目的IP地址定义一条流，也可以根据源IP地址 + 目的IP地址来定义一条流<br><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E5%8C%B9%E9%85%8D%E5%9F%9F.png" srcset="/img/loading.gif" alt="匹配域"> </p>
+<h4 id="匹配域"><a href="#匹配域" class="headerlink" title="匹配域"></a>匹配域</h4><p>OpenFlow提供丰富的匹配域字段来定义不同粒度的流，如可以基于目的IP地址定义一条流，也可以根据源IP地址 + 目的IP地址来定义一条流<br><img src="/imgs/Introduction_to_OpenFlow/%E5%8C%B9%E9%85%8D%E5%9F%9F.png" srcset="/img/loading.gif" alt="匹配域"> </p>
 <h4 id="指令与动作"><a href="#指令与动作" class="headerlink" title="指令与动作"></a>指令与动作</h4><p>指令（Instruction）是流表项匹配成功时的处理动作，分为三类</p>
 <ul>
 <li>更新动作集（Action Set）：添加、修改、清空动作集，前面两个对应Write-Actions指令，清空动作集对应Clear-Actions指令</li>
 <li>修改流水线处理次序：从序号低的表跳转到序号高的表，对应Go-To-Table指令</li>
 <li>其他：更新元数据以及设定触发器，分别对应Write-Metadata指令和Stat-Trigger指令</li>
 </ul>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E6%8C%87%E4%BB%A4.png" srcset="/img/loading.gif" alt="指令"> </p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E6%8C%87%E4%BB%A4.png" srcset="/img/loading.gif" alt="指令"> </p>
 <p>动作（Action）<br>Action是指对数据包的具体处理动作，可分为两类，一类是定义数据包的转发，另一类是修改数据包包头字段</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E5%8A%A8%E4%BD%9C.png" srcset="/img/loading.gif" alt="动作"> </p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E5%8A%A8%E4%BD%9C.png" srcset="/img/loading.gif" alt="动作"> </p>
 <h4 id="流表匹配过程"><a href="#流表匹配过程" class="headerlink" title="流表匹配过程"></a>流表匹配过程</h4><p>解析数据包得到的首部字段，用于与流表项匹配域进行匹配。若一个数据包与多个流表项匹配成功，最后只与优先级最高的流表项进行匹配。</p>
 <ul>
 <li>匹配成功，更新计数器，执行相应指令</li>
@@ -269,16 +269,16 @@
 </ul>
 </li>
 </ul>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E6%B5%81%E8%A1%A8%E5%8C%B9%E9%85%8D%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="流表匹配过程"> </p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E6%B5%81%E8%A1%A8%E5%8C%B9%E9%85%8D%E8%BF%87%E7%A8%8B.png" srcset="/img/loading.gif" alt="流表匹配过程"> </p>
 <h4 id="例子——使用单流表转发数据包"><a href="#例子——使用单流表转发数据包" class="headerlink" title="例子——使用单流表转发数据包"></a>例子——使用单流表转发数据包</h4><p>假设主机A发送数据包给主机B，使用单张流表的OF交换机处理数据包过程，如图所示</p>
 <ol>
 <li>OF交换机从1端口接收数据包</li>
 <li>OF交换机解析数据包首部，并查询流表进行流表匹配，匹配第一条流表项，并执行相应指令</li>
 <li>将数据包转发到OF交换机的2端口</li>
 </ol>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E4%BD%BF%E7%94%A8%E5%8D%95%E6%B5%81%E8%A1%A8%E8%BD%AC%E5%8F%91%E6%95%B0%E6%8D%AE%E5%8C%85.png" srcset="/img/loading.gif" alt="使用单流表转发数据包"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E4%BD%BF%E7%94%A8%E5%8D%95%E6%B5%81%E8%A1%A8%E8%BD%AC%E5%8F%91%E6%95%B0%E6%8D%AE%E5%8C%85.png" srcset="/img/loading.gif" alt="使用单流表转发数据包"></p>
 <h3 id="多级流表与流水线处理"><a href="#多级流表与流水线处理" class="headerlink" title="多级流表与流水线处理"></a>多级流表与流水线处理</h3><p>从OpenFlow1.1开始引入了多级流表和流水线处理机制，多级流表的出现一方面能够实现对数据包的复杂处理，另一方面又能有效降低单张流表的长度，提高查表效率。每张表都有序号，数据包通过跳转指令按照流表序号递增的方向在多个流表之间进行匹配，这样就构成了一条流水线，如下图所示，可见流水线处理是有方向的。流水线处理可以在OpenFlow交换机的入端口或出端口上进行，一般都在入端口出进行流水线处理。当流水线上只有一张流表时，就简化成单流表匹配的情况。</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6.png" srcset="/img/loading.gif" alt="流水线处理机制"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6.png" srcset="/img/loading.gif" alt="流水线处理机制"></p>
 <ul>
 <li>流水线处理开始：OpenFlow交换机接收数据包后，执行入端口的流水线处理，同时给该流水线分配一个动作集（Action Set）</li>
 <li>流表匹配<ul>
@@ -297,23 +297,23 @@
 <li>流表0中匹配主机A到主机B的IP流，然后跳转到其他流表，如流表2</li>
 <li>流表2中在IP流的基础上进一步匹配TCP流或UDP流，根据要求将TCP流正常转发，UDP流丢弃</li>
 </ol>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E5%A4%9A%E7%BA%A7%E6%B5%81%E8%A1%A8%E5%AE%9E%E7%8E%B0%E5%AF%B9%E6%B5%81%E7%9A%84%E7%BB%86%E7%B2%92%E5%BA%A6%E6%8E%A7%E5%88%B6.png" srcset="/img/loading.gif" alt="多级流表实现对流的细粒度控制"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E5%A4%9A%E7%BA%A7%E6%B5%81%E8%A1%A8%E5%AE%9E%E7%8E%B0%E5%AF%B9%E6%B5%81%E7%9A%84%E7%BB%86%E7%B2%92%E5%BA%A6%E6%8E%A7%E5%88%B6.png" srcset="/img/loading.gif" alt="多级流表实现对流的细粒度控制"></p>
 <h2 id="0x06-OpenFlow的两种下发流表方式"><a href="#0x06-OpenFlow的两种下发流表方式" class="headerlink" title="0x06 OpenFlow的两种下发流表方式"></a>0x06 OpenFlow的两种下发流表方式</h2><p>根据流表的安装时机，可分为Proactive方式和Reactive方式</p>
 <h3 id="Proactive"><a href="#Proactive" class="headerlink" title="Proactive"></a>Proactive</h3><p>在数据包还未到达OpenFlow交换机前，SDN控制器就向OpenFlow交换机主动下发流表，这种方式相当于<strong>预置路由</strong></p>
 <p>例如Table-Miss表项，就需要采用Proactive方式在SDN控制器与OpenFlow交换机建立连接后下发，显示的指定数据包查表失败时，OpenFlow交换机的处理方式</p>
 <h3 id="Reactive"><a href="#Reactive" class="headerlink" title="Reactive"></a>Reactive</h3><p>数据包到达OpenFlow交换机因查流表失败时，产生Packet-In消息询问SDN控制器，SDN控制器计算路由后下发流表到OpenFlow交换机，这种方式相当于<strong>按需下发路由</strong>，只有在有路由需求且查流表失败时，才会触发新的流表安装</p>
 <h2 id="0x07-组表"><a href="#0x07-组表" class="headerlink" title="0x07 组表"></a>0x07 组表</h2><p>独立于流水线之外，每台OpenFlow交换机只有一张组表。组表（Group Table）由若干条组表项（Group Entry）组成，具有将多个端口定义为一个组的能力，从而实现广播、多播，负载均衡、链路聚合、故障转移等</p>
 <p>组表项结构如图所示，定义了一到多个动作桶（Action Bucket），用于描述转发到指定端口前，对数据包的处理。</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E7%BB%84%E8%A1%A8%E9%A1%B9%E7%BB%93%E6%9E%84.png" srcset="/img/loading.gif" alt="组表项结构"></p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E7%BB%84%E7%B1%BB%E5%9E%8B.png" srcset="/img/loading.gif" alt="组类型"></p>
-<h3 id="例子——使用组表实现多播"><a href="#例子——使用组表实现多播" class="headerlink" title="例子——使用组表实现多播"></a>例子——使用组表实现多播</h3><p>假设主机A使用多播方式向主机B和C发送IP数据包<br><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E4%BD%BF%E7%94%A8%E7%BB%84%E8%A1%A8%E5%AE%9E%E7%8E%B0%E5%A4%9A%E6%92%AD.png" srcset="/img/loading.gif" alt="使用组表实现多播"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E7%BB%84%E8%A1%A8%E9%A1%B9%E7%BB%93%E6%9E%84.png" srcset="/img/loading.gif" alt="组表项结构"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E7%BB%84%E7%B1%BB%E5%9E%8B.png" srcset="/img/loading.gif" alt="组类型"></p>
+<h3 id="例子——使用组表实现多播"><a href="#例子——使用组表实现多播" class="headerlink" title="例子——使用组表实现多播"></a>例子——使用组表实现多播</h3><p>假设主机A使用多播方式向主机B和C发送IP数据包<br><img src="/imgs/Introduction_to_OpenFlow/%E4%BD%BF%E7%94%A8%E7%BB%84%E8%A1%A8%E5%AE%9E%E7%8E%B0%E5%A4%9A%E6%92%AD.png" srcset="/img/loading.gif" alt="使用组表实现多播"></p>
 <h2 id="0x08-计量表"><a href="#0x08-计量表" class="headerlink" title="0x08 计量表"></a>0x08 计量表</h2><p>对流进行测量，从而为流提供QoS功能，如限速、DiffServ</p>
 <p>每台OpenFlow交换机只有一张计量表（Meter Table），由若干计量表项（Meter Entry）组成，每个计量表项可以定义一至多个计量带（Meter Band），计量带定义了带宽阈值和数据包处理方式（丢弃、DSCP标记）</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E8%AE%A1%E9%87%8F%E8%A1%A8.png" srcset="/img/loading.gif" alt="计量表"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/%E8%AE%A1%E9%87%8F%E8%A1%A8.png" srcset="/img/loading.gif" alt="计量表"></p>
 <h3 id="例子——对流进行限速"><a href="#例子——对流进行限速" class="headerlink" title="例子——对流进行限速"></a>例子——对流进行限速</h3><p>假设对某条流X（目的IP地址：10.0.0.2）进行限速，且当前测得流X数据包的速率为1200kBps</p>
 <ul>
 <li>流表匹配后，交由计量1处理</li>
-<li>由于测得数据包速率1200kBps &gt; 带宽阈值1000，根据计量带0定义的处理方式丢弃数据包，从而实现限速<pre><code>注：带宽阈值本身是无单位的数值，其表示含义取决于应用场景</code></pre><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5C%E5%AF%B9%E6%B5%81%E8%BF%9B%E8%A1%8C%E9%99%90%E9%80%9F.png" srcset="/img/loading.gif" alt="对流进行限速"></li>
+<li>由于测得数据包速率1200kBps &gt; 带宽阈值1000，根据计量带0定义的处理方式丢弃数据包，从而实现限速<pre><code>注：带宽阈值本身是无单位的数值，其表示含义取决于应用场景</code></pre><img src="/imgs/Introduction_to_OpenFlow/%E5%AF%B9%E6%B5%81%E8%BF%9B%E8%A1%8C%E9%99%90%E9%80%9F.png" srcset="/img/loading.gif" alt="对流进行限速"></li>
 </ul>
 <h2 id="0x09-OpenFlow消息"><a href="#0x09-OpenFlow消息" class="headerlink" title="0x09 OpenFlow消息"></a>0x09 OpenFlow消息</h2><h3 id="种类"><a href="#种类" class="headerlink" title="种类"></a>种类</h3><p>消息按照发送的位置可分为三大类，每一大类中有若干子消息</p>
 <ul>
@@ -361,9 +361,9 @@
 </ul>
 </li>
 </ul>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow%E6%B6%88%E6%81%AF%E7%A7%8D%E7%B1%BB.png" srcset="/img/loading.gif" alt="OpenFlow消息种类"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow%E6%B6%88%E6%81%AF%E7%A7%8D%E7%B1%BB.png" srcset="/img/loading.gif" alt="OpenFlow消息种类"></p>
 <h3 id="Flow-Mod消息"><a href="#Flow-Mod消息" class="headerlink" title="Flow-Mod消息"></a>Flow-Mod消息</h3><p>Flow-Mod消息用于流表操作，包括添加、删除、修改流表项。该消息由控制器下发给交换机，从而指导交换机对数据包的处理。</p>
-<p>其在OpenFlow1.3中的消息格式如下图所示。<br><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow1.3%E4%B8%ADFlow-Mod%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Flow-Mod消息格式"></p>
+<p>其在OpenFlow1.3中的消息格式如下图所示。<br><img src="/imgs/Introduction_to_OpenFlow/OpenFlow1.3%E4%B8%ADFlow-Mod%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Flow-Mod消息格式"></p>
 <ul>
 <li>command：<ul>
 <li>ADD:添加流表项</li>
@@ -376,19 +376,19 @@
 </li>
 </ul>
 <h3 id="Packet-In消息"><a href="#Packet-In消息" class="headerlink" title="Packet-In消息"></a>Packet-In消息</h3><p>Packet-In消息用于将OpenFlow交换机上指定数据包交给控制器处理，一般流表匹配中出现Table-Miss时或流表项显示指定将数据包交给控制器时，触发该消息。此外，它还能用于主动测量时回收探测包，从而结合Packet-Out消息实现对网络拓扑与链路时延的测量，详情参考<a href="https://chentingz.github.io/2020/02/12/%E5%9F%BA%E4%BA%8EOpenFlow%E6%B6%88%E6%81%AF%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%8B%E9%87%8F%E6%96%B9%E6%B3%95/#0x03-%E5%9F%BA%E4%BA%8Eopenflow%E7%9A%84packet-out%E6%B6%88%E6%81%AF%E5%92%8Cpacket-in%E6%B6%88%E6%81%AF%E6%B5%8B%E9%87%8F%E6%8B%93%E6%89%91%E5%92%8C%E6%97%B6%E5%BB%B6">基于OpenFlow消息的网络测量方法</a>。</p>
-<p>其在OpenFlow1.3中的消息格式如下图所示。<br><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow1.3%E4%B8%ADPacket-In%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Packet-In消息格式"></p>
+<p>其在OpenFlow1.3中的消息格式如下图所示。<br><img src="/imgs/Introduction_to_OpenFlow/OpenFlow1.3%E4%B8%ADPacket-In%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Packet-In消息格式"></p>
 <ul>
 <li>buffer_id：若该字段为-1，表明交换机未缓存数据包，Packet-In消息需要携带完整数据包发送至控制器；否则，表明数据包已在交换机上缓存，Packet-In消息只携带部分数据包上传至控制器。</li>
 </ul>
 <h3 id="Packet-Out消息"><a href="#Packet-Out消息" class="headerlink" title="Packet-Out消息"></a>Packet-Out消息</h3><p>Packet-Out消息用于指定交换机将数据包从指定端口转发出去。触发该消息的情况有两种：1.转发Packet-In消息携带的数据包 2.转发控制器主动构造的数据包（如用于链路发现的LLDP报文）。此外，由于该消息能够携带自定义数据包，控制器通过在Packet-Out消息中封装探测包并下发至指定交换机，就能够发起主动测量任务，配合Packet-In消息可实现对网络拓扑与链路时延的测量，详情参考<a href="https://chentingz.github.io/2020/02/12/%E5%9F%BA%E4%BA%8EOpenFlow%E6%B6%88%E6%81%AF%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%8B%E9%87%8F%E6%96%B9%E6%B3%95/#0x03-%E5%9F%BA%E4%BA%8Eopenflow%E7%9A%84packet-out%E6%B6%88%E6%81%AF%E5%92%8Cpacket-in%E6%B6%88%E6%81%AF%E6%B5%8B%E9%87%8F%E6%8B%93%E6%89%91%E5%92%8C%E6%97%B6%E5%BB%B6">基于OpenFlow消息的网络测量方法</a>。</p>
-<p>其在OpenFlow1.3中的消息格式如下图所示。<br><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow1.3%E4%B8%ADPacket-Out%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Packet-Out消息格式"></p>
+<p>其在OpenFlow1.3中的消息格式如下图所示。<br><img src="/imgs/Introduction_to_OpenFlow/OpenFlow1.3%E4%B8%ADPacket-Out%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Packet-Out消息格式"></p>
 <ul>
 <li>buffer_id：若该字段为-1，表明交换机未缓存数据包，Packet-Out消息携带控制器创建的数据包发送至交换机；否则，Packet-Out消息表示交换机需要将本地缓存的数据包按照Packet-Out中的actions进行处理。</li>
 </ul>
 <h3 id="Port-Stats消息"><a href="#Port-Stats消息" class="headerlink" title="Port-Stats消息"></a>Port-Stats消息</h3><p>Port-Stats消息是统计消息（以Stats结尾的消息）的一种，用于控制器查询交换机的端口计数器，从而获取端口的统计信息（如端口接收/发送字节数、接收/发送数据包个数等）。此外，它还能用来测量丢包率和吞吐量，详情参考<a href="https://chentingz.github.io/2020/02/12/%E5%9F%BA%E4%BA%8EOpenFlow%E6%B6%88%E6%81%AF%E7%9A%84%E7%BD%91%E7%BB%9C%E6%B5%8B%E9%87%8F%E6%96%B9%E6%B3%95/#0x02-%E5%9F%BA%E4%BA%8Eopenflow%E7%9A%84port-stats%E6%B6%88%E6%81%AF%E6%B5%8B%E9%87%8F%E4%B8%A2%E5%8C%85%E7%8E%87%E5%92%8C%E5%90%9E%E5%90%90%E9%87%8F">基于OpenFlow消息的网络测量方法</a>。</p>
 <p>该消息具体有两种，一种是Port-Stats-Request消息，用于SDN控制器请求交换机端口统计信息，另一种是Port-Stats-Reply消息，交换机用它来应答SDN控制器，它们在OpenFlow1.3版本中的消息格式如下图所示。</p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow1.3%E4%B8%ADPort-Stats-Request%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Port-Stats-Request消息格式"></p>
-<p><img src="%5Cimgs%5CIntroduction_to_OpenFlow%5COpenFlow1.3%E4%B8%ADPort-Stats-Reply%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Port-Stats-Reply消息格式"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow1.3%E4%B8%ADPort-Stats-Request%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Port-Stats-Request消息格式"></p>
+<p><img src="/imgs/Introduction_to_OpenFlow/OpenFlow1.3%E4%B8%ADPort-Stats-Reply%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F.png" srcset="/img/loading.gif" alt="OpenFlow1.3中Port-Stats-Reply消息格式"></p>
 <h2 id="0x0A-参考"><a href="#0x0A-参考" class="headerlink" title="0x0A 参考"></a>0x0A 参考</h2><ul>
 <li><a href="https://www.opennetworking.org/wp-content/uploads/2014/10/openflow-switch-v1.5.1.pdf" target="_blank" rel="noopener">openflow-switch-v1.5.1</a></li>
 <li><a href="https://www.opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf" target="_blank" rel="noopener">openflow-switch-v1.3.0</a></li>
