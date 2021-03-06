@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="description" content>
+  <meta name="author" content="Chentingz">
+  <meta name="keywords" content>
+  <title>SDN网络测量方法 - Chentingz</title>
+
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+  <link rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+  <link rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css">
+
+
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Chentingz</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">分类</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/footprints/">足迹</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" false
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2021-03-06 12:00 凌晨
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    7.4k 字
+                  </span>
+                
+
+                
+
+                
+                  <!-- 不蒜子统计文章PV -->
+                  
+                  <span id="busuanzi_container_page_pv" class="post-meta" style="display: none">
+                    <i class="far fa-eye" aria-hidden="true"></i>
+                    <span id="busuanzi_value_page_pv"></span> 次
+                  </span>
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="py-5 z-depth-3" id="board">
+        <div class="post-content mx-auto" id="post">
+          
+          <div class="markdown-body">
+            <p>[TOC]</p>
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>SDN网络测量按照测量对象可分为网络状态测量、网络性能测量、网络流量参数测量三类[1]。网络状态包含网络链路的状态信息以及网络的拓扑结构，是网络的基本参数，对其进行测量的主要目的是监测网络运行时的相关指标和行为，及时地发现网络异常和故障，确保网络运行在正确状态；网络性能参数包括链路吞吐量、链路丢包率、链路时延等，该参数对测量的实时性要求较高，反应网络的瞬时运行状态；网络流量参数一般通过对一定周期内的网络流量进行采集分析获得，是一个统计参数，例如报文数量统计、流长统计等，对流量参数进行深入挖掘和分析可以发现网络中潜在的问题，是指导网络管理和安全工作的重要依据。</p>
+<p>本文主要对现有的SDN网络状态以及网络性能测量的方法进行总结。</p>
+<a id="more"></a>
+<p><img src="/imgs/SDN_Measurement/SDN网络测量方法方法总结.png" srcset="/img/loading.gif" alt="SDN网络测量方法方法总结"></p>
+<h2 id="0x01-基于OpenFlow的被动测量方法"><a href="#0x01-基于OpenFlow的被动测量方法" class="headerlink" title="0x01 基于OpenFlow的被动测量方法"></a>0x01 基于OpenFlow的被动测量方法</h2><p>OpenFlow交换机中定义了多种计数器，内容如表1所示，记录了每个端口、每个流表和每个流表项等不同结构的数据包数、字节数和持续时间等统计量。根据OpenFlow协议中定义的统计消息，控制器能够定期查询并获取交换机的计数器统计信息，用于测量丢包率、吞吐量等网络性能指标。 </p>
+<p>OpenFlow统计消息包含Port-Stats消息、Flow-Stats消息、Aggregate-Stats消息、Queue-Stats消息、Group-Stats消息、Meter-Stats消息和Table-Stats消息，这些消息可用于获取OpenFlow交换机中指定计数器的统计信息，如Port-Stats消息可以用于获取指定OpenFlow交换机物理端口的统计信息，Flow-Stats消息用于获取指定流表项的统计信息。</p>
+<center>表1 OpenFlow 1.3中的计数器</center>
+
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型</th>
+<th style="text-align:left">内容</th>
+<th>比特数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">每张流表 Per Flow Table</td>
+<td style="text-align:left">活跃表项 Active Entries</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">数据包查表次数 Packet Lookups</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">数据包匹配次数 Packet Matches</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left">每条流表项 Per Flow Entry</td>
+<td style="text-align:left">接收数据包个数 Received Packets</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">接收数据包字节数 Received Bytes</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（秒） Duration(seconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（纳秒） Duration(nanoseconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left">每个物理端口 Per Port</td>
+<td style="text-align:left">接收数据包个数 Received Packets</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">发送数据包个数 Transmitted Packets</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">接收字节数 Received Bytes</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">发送字节数 Transmitted Bytes</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">接收后丢弃的数据包个数 Receive Drops</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">发送时丢弃的数据包个数 Transmit Drops</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">接收出现的错误 Receive Errors</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">发送出现的错误 Transmit Errors</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">接收的帧排列错误 Receive Frame Alignment Errors</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">溢出错误 Receive Overrun Errors</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">CRC校验错误 Receive CRC  Errors</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">帧冲突 Collisions</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（秒） Duration (seconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（毫秒） Duration (nanoseconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left">每条队列 Per Queue</td>
+<td style="text-align:left">发送数据包个数 Transmit Packets</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">发送字节数 Transmit Bytes</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">溢出错误 Transmit Overrun Errors</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（秒） Duration (seconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（毫秒） Duration (nanoseconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left">每张组表 Per Group</td>
+<td style="text-align:left">绑定的流表项个数 Flow Entries</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">匹配的数据包个数 Packet Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">匹配的字节数 Byte Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（秒） Duration (seconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（毫秒） Duration (nanoseconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left">每个组表桶 Per Group Bucket</td>
+<td style="text-align:left">匹配的数据包个数 Packet Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">匹配的字节数 Byte Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left">每张计量表 Per Meter</td>
+<td style="text-align:left">流个数 Flow Count</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">输入数据包个数 Input Packet Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">输入字节数 Input Byte Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">生存时间（秒） Duration (seconds)</td>
+<td>32</td>
+</tr>
+<tr>
+<td style="text-align:left">每个计量表带 Per Meter Band</td>
+<td style="text-align:left">在计量表带中的数据包个数 In Band Packet Count</td>
+<td>64</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">在计量表带中的字节数 In Band Byte Count</td>
+<td>64</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="基于Port-Stats消息测量链路丢包率和吞吐量"><a href="#基于Port-Stats消息测量链路丢包率和吞吐量" class="headerlink" title="基于Port-Stats消息测量链路丢包率和吞吐量"></a>基于Port-Stats消息测量链路丢包率和吞吐量</h3><p>Hamad[2]等人提出利用Port-Stats消息来实现链路丢包率和链路吞吐量测量，Port-Stats消息具体有两种，一种是Port-Stats-Request消息，用于SDN控制器请求交换机端口统计信息，另一种是Port-Stats-Reply消息，交换机用它来应答SDN控制器，具体过程是交换机读取指定端口的计数器，获得端口的统计信息并将其封装在该消息中，然后将消息发送给SDN控制器。在OpenFlow 1.3中，Port-Stats-Request和Port-Stats-Reply消息格式分别如图1和图2所示，SDN控制器可以从Port-Stats-Reply消息中获取到交换机端口的接收/发送数据包个数（rx_packets/tx_packets），接收/发送字节数（rx_bytes/tx_bytes），丢弃数据包个数(rx_dropped/tx_dropped)，冲突次数（collisions），端口生存时间（duration_sec和duration_nsec）等统计信息，这些信息将用于计算链路丢包率、链路吞吐量。</p>
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中的Port-Stats-Request消息格式.png" srcset="/img/loading.gif" alt="图1 OpenFlow1.3中的Port-Stats-Request消息格式"></p>
+<center>图1 OpenFlow1.3中的Port-Stats-Request消息格式</center>
+
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中的Port-Stats-Reply消息格式.png" srcset="/img/loading.gif" alt="图2 OpenFlow1.3中的Port-Stats-Reply消息格式"></p>
+<center>图2 OpenFlow1.3中的Port-Stats-Reply消息格式</center>
+
+<p>丢包率是指一段时间内，数据包丢失数与总发送数的比值。假设测量如图3所示网络拓扑中交换机S1到交换机S2方向的链路丢包率，SDN控制器需定期向交换机S1和S2发送Port-Stats-Request消息，来获取S1的1端口发送数据包个数<script type="math/tex">tx\_packets_{s1}</script>以及S2的2端口接收数据包个数<script type="math/tex">rx\_packets_{s2}</script>。通过每隔一段时间进行轮询，利用公式（1）可以计算得到S1到S2方向的链路在第(<em>i-1</em>)次和第<em>i</em>次查询时间段内的丢包率。</p>
+<p><img src="/imgs/SDN_Measurement/基于OpenFlow的Port-Stats消息测量链路丢包率原理图.png" srcset="/img/loading.gif" alt="图3 基于OpenFlow的Port-Stats消息测量链路丢包率原理图"></p>
+<center>图3 基于OpenFlow的Port-Stats消息测量链路丢包率原理图</center>
+
+<script type="math/tex; mode=display">
+Loss(i-1,i)=1-\frac{ {rx\_packets_{s2(i)} }- {rx\_packets_{s2(i-1)} } }{ {tx\_packets_{s1(i)} }- {tx\_packets_{s1(i-1)} } }
+\tag {1}</script><p>吞吐量是指单位时间内传输无差错数据总量。测量交换机链路吞吐量时，SDN控制器将周期性发送Port-Stats-Request消息到指定交换机，并从交换机的Port-Stats-Reply消息中获取接收/发送字节数（rx_bytes/tx_bytes）和端口生存时间（duration_sec和duration_nsec），利用公式（2）和（3）可以计算第(i-1)次和第i次查询时间段内的吞吐量大小。</p>
+<script type="math/tex; mode=display">
+Throughtput(i-1,i)= \frac{bytes_{i}-bytes_{(i-1)} }{duration_{i}-duration_{(i-1)} }
+\tag {2}</script><script type="math/tex; mode=display">
+duration = durtation\_sec+duration\_nsec*10^{-9}
+\tag {3}</script><h3 id="OpenNetMon：基于Flow-Stats消息测量流丢包率和吞吐量"><a href="#OpenNetMon：基于Flow-Stats消息测量流丢包率和吞吐量" class="headerlink" title="OpenNetMon：基于Flow-Stats消息测量流丢包率和吞吐量"></a>OpenNetMon：基于Flow-Stats消息测量流丢包率和吞吐量</h3><p>基于Port-Stats消息测量的丢包率和吞吐量是链路级别的，当需要测量更为细粒度的丢包率和吞吐量，如流级别时，基于Port-Stats消息的测量方法就无法适用。针对测量流级别的丢包率和吞吐量，Adrichem[3] 等人基于Flow-Stats消息在POX控制器上开发了OpenNetMon应用，该应用可以在SDN网络内对指定流的丢包率和吞吐量进行监控。</p>
+<p>与Port-Stats测量链路丢包率和吞吐量方法类似，首先在固定的时间间隔内轮询交换机，通过发送如图4的Flow-Stats-Request消息采集流量统计信息，然后从如图5所示的Flow-Stats-Reply消息中提取流量统计信息中的字节数byte_count和包数packet_count来计算丢包率和吞吐量。高频率的轮询将产生高准确性的统计信息进而会提高测量精度。然而，这将在网络中引入显著的监控开销。为了在测量准确性和网络开销之间取得平衡，OpenNetMon提出了一种可变频率流量统计信息采集算法。</p>
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中的Flow-Stats-Request消息格式.png" srcset="/img/loading.gif" alt="图4 OpenFlow1.3中的Flow-Stats-Request消息格式"></p>
+<center>图4 OpenFlow1.3中的Flow-Stats-Request消息格式</center>
+
+
+
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中的Flow-Stats-Reply消息格式.png" srcset="/img/loading.gif" alt="图5 OpenFlow1.3中的Flow-Stats-Reply消息格式"></p>
+<center>图5 OpenFlow1.3中的Flow-Stats-Reply消息格式</center>
+
+<p>当控制器收到一个Packet-In消息时，它将添加一个新的流表项到当前流表中，同时对轮询时间<em>τ</em>初始化。如果流在<em>τ</em>毫秒内过期，控制器将通过Flow-Removed消息中接收这条流的统计信息。否则，控制器将主动向相应的交换机发送一个Flow-Stats-Request消息来采集关于该流的统计信息。如果采集到这条流的统计信息在此时间段内没有显著变化，即该流的前一个字节计数和当前字节计数之间的差异没有超过阈值<em>∆1</em>，那么将该流的超时<em>τ</em>乘以一个小常数<em>α</em>的结果，与轮询时间最大值<em>Tmax</em>比较，较小者用于更新τ。如果新旧数据的差异大于另一个阈值<em>∆2</em>，则该流的轮询时间<em>τ</em>除以另一个常数<em>β</em>的结果，与轮询时间最小值<em>Tmin</em>比较，较大者用于更新<em>τ</em>。这种对轮询时间<em>τ</em>调整背后的逻辑是，对于有助于显著提高链路利用率的流量，保持较高的轮询频率，而对于当时对链路利用率没有显著贡献的流量，则保持较低的轮询频率。当它们的贡献增加时，轮询时间<em>τ</em>将根据算法进行自适应调整。</p>
+<h3 id="OpenTM：基于Flow-Stats消息测量流量矩阵"><a href="#OpenTM：基于Flow-Stats消息测量流量矩阵" class="headerlink" title="OpenTM：基于Flow-Stats消息测量流量矩阵"></a>OpenTM：基于Flow-Stats消息测量流量矩阵</h3><p>流量矩阵(Traffic Matrix, TM)表示网络中每一对源宿节点之间的流量大小。许多网络管理和安全任务都建立在流量矩阵基础之上，如路由协议配置、负载均衡、异常检测等。</p>
+<p>在SDN网络中，Tootoonchian[4]等人基于OpenFlow提供的Flow-Stats消息设计了流量矩阵测量系统OpenTM。OpenTM持续追踪SDN网络中所有的活跃流，然后从控制器的路由应用中获取这些流的传输路径，对传输路径上的交换机周期性发送Flow-Stats消息轮询交换机获取流字节数和包数。根据路由信息，OpenTM将具有相同源宿的流的统计信息进行累加从而构造流量矩阵。</p>
+<p>此外，OpenTM还测试了多种查询策略以应对不同的使用场景，包括（1）查询路径上最后一台交换机，（2）均匀分布下随机选取路径上的交换机进行查询，（3）轮询，（4）非均匀分布下随机选取高概率且离目的地最近的交换机进行查询，（5）查询负载最小的交换机。实验结果表明，在不追求非常准确的测量结果时，以上5种策略都可以使用，其中最小负载查询策略在降低交换机负载上有着更为突出的优势。针对测量结果有高准确性要求的场景，策略4选择路径上离目的地最近的几个交换机则更为适用。</p>
+<h3 id="FlowSense：基于Packet-In和FlowRemoved消息测量链路吞吐量"><a href="#FlowSense：基于Packet-In和FlowRemoved消息测量链路吞吐量" class="headerlink" title="FlowSense：基于Packet-In和FlowRemoved消息测量链路吞吐量"></a>FlowSense：基于Packet-In和FlowRemoved消息测量链路吞吐量</h3><p>Yu[5] 等人针对SDN网络提出了一种基于推送的链路吞吐量测量方法，该方法利用了Packet-In消息和Flow-Removed消息，分别用于告知控制器一条新流的抵达以及一条流的结束，可用来计算交换机之间的链路吞吐量。相比于通过OpenFlow协议主动查询来测量吞吐量，该方法能够减少测量产生的开销。</p>
+<p>当一条流表项过期时，交换机会生成如图6的Flow-Removed消息用于告知控制器。Flow-Removed消息会携带三个重要的信息，（1）流表项在流表中从创建到删除的生存时间（duration_sec和duration_nsec字段），（2）匹配该流表项的流的总量大小（byte_count和packet_count字段），（3）匹配该流表项的流进入交换机的端口号（match字段中的in_port）。这些信息将有助于推断对交换机输入端口所在链路吞吐量有贡献的流量大小。</p>
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中的Flow-Removed消息格式.png" srcset="/img/loading.gif" alt="图6 OpenFlow1.3中的Flow-Removed消息格式"></p>
+<center>图6 OpenFlow1.3中的Flow-Removed消息格式</center>
+
+<p> FlowSense的基本思想是每当一条流表项过期触发Flow-Removed消息时，就对该流表项对应的链路创建一个检查点checkpoint，它表示流最后一次匹配流表项的时间，即流的实际活跃时间。如果一条流表项是因为在idle_timeout内没有流匹配而过期，那么checkpoint将设置为FlowRemoved消息生成的时间减去idle_timeout。如果一条流表项是因为表项生存时间hard_timeout过期，那么难以推测出流的实际活跃时间，FlowSense假设流在整个流表项生存期间都是活跃状态，于是将checkpoint设置为FlowRemoved消息生成的时间。</p>
+<p>​    在每一个checkpoint，FlowSense都会测量流在该链路上的吞吐量，计算公式参考（4）。由于在同一时刻相同链路上可能存在多条活跃流，它们都会对链路吞吐量有贡献。为了准确测量出链路总吞吐量，借助Packet-In消息推测出这些活跃流的起始时间，结合Flow-Removed消息即可推断出流的实际活跃时间。由于需要等待所有的活跃流结束并触发Flow-Removed消息才能计算出总的链路吞吐量，因此在每个checkpoint的链路吞吐量需要经过一段时间才能完成最终的测量。</p>
+<script type="math/tex; mode=display">
+Throughtput_{f}=\frac{byte\_count}{duration\_sec+duration\_nsec*10^{-9} }
+\tag {4}</script><p><img src="/imgs/SDN_Measurement/FlowSense测量链路吞吐量示意图.png" srcset="/img/loading.gif" alt="图7 FlowSense测量链路吞吐量示意图"></p>
+<center>图7 FlowSense测量链路吞吐量示意图</center>
+
+<p>图7展示了FlowSense测量链路吞吐量的过程。在这个例子中，流<em>f1</em>，<em>f2</em>，和<em>f3</em>的开始时间分别为<em>t1</em>，<em>t2</em>和 <em>t3</em>。<em>t4</em>，<em>t5</em>和 <em>t6</em>是这些流的结束时间。FlowSense根据Packet-In消息和Flow-Removed消息分别确定流的开始和结束时间。如果<em>f1</em>，<em>f2</em>，和<em>f3</em>的吞吐量分别为10、20和40MBps，那么当第一个Flow-Removed消息在<em>t4</em>生成时，FlowSense将通过Flow-Removed消息的字节数byte_count除以流的持续时间duration来计算<em>f1</em>的吞吐量，并且在<em>t4</em>创建一个检查点checkpoint。当<em>t5</em>的Flow-Removed消息到达时，流<em>f3</em>结束并且计算出它的吞吐量40MBps，然后将其添加到<em>t4</em>的检查点中，此时<em>t4</em>检查点中链路吞吐量为50MBps （<em>f1</em>和<em>f3</em>的吞吐量总和，计算公式参考（5））。最后，在<em>t6</em>，流<em>f2</em>结束，并且它的吞吐量计算后被添加到<em>t4</em>和<em>t5</em>的检查点，最终每个检查点中链路利用率为: <em>t4</em>为70 MBps, <em>t5</em>为60 MBps, <em>t6</em>为40 MBps。</p>
+<script type="math/tex; mode=display">
+Throughtput_{link} = \sum_{i=1}^{n}{Thourghtput_{f_{i} }}
+\tag {5}</script><h2 id="0x02-基于OpenFlow的主动测量方法"><a href="#0x02-基于OpenFlow的主动测量方法" class="headerlink" title="0x02 基于OpenFlow的主动测量方法"></a>0x02 基于OpenFlow的主动测量方法</h2><p>SDN网络中主动测量方法的基本思想是SDN控制器生成探测数据包并下发至指定的交换机，当测量过程结束时，被测交换机需要触发相应机制将探测包返回控制器，由控制器分析并计算得到测量结果。由于SDN网络中交换机处理数据包的规则，即流表项，需要由控制器指定，因此实现主动测量的关键在于控制器如何生成和回收探测数据包，以及如何制定探测包的转发规则。</p>
+<p>OpenFlow协议规定了控制器和交换机相互发送数据包的消息类型。由控制器发起的Controller-to-Switch消息类型中，包含一类Packet-Out消息，其格式如图8所示。控制器能够自定义该消息中携带的数据包内容，以及交换机收到Packet-Out消息后的行为。控制器通过在Packet-Out消息中封装探测数据包并下发至指定交换机，就能够发起主动测量任务。</p>
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中Packet-Out消息格式.png" srcset="/img/loading.gif" alt="图8 OpenFlow1.3中Packet-Out消息格式"></p>
+<center>图8 OpenFlow1.3中Packet-Out消息格式</center>
+
+<p>在由交换机发起的Asynchronous消息类型中，包含Packet-In消息，其格式如图9所示，该消息与Packet-Out类似，可以封装交换机上的指定数据包并发送至控制器做进一步处理。当交换机中的流表项无法匹配某个数据包时，会默认触发Packet-In消息。由于探测数据包通常与网络中的正常流量有所不同，因此基于OpenFlow的SDN主动测量可以利用Packet-In消息机制实现探测包的回收。</p>
+<p><img src="/imgs/SDN_Measurement/OpenFlow1.3中Packet-In消息格式.png" srcset="/img/loading.gif" alt="图9 OpenFlow1.3中Packet-In消息格式"></p>
+<center>图9 OpenFlow1.3中Packet-In消息格式</center>
+
+<h3 id="SLAM：基于Packet-Out和Packet-In消息测量时延"><a href="#SLAM：基于Packet-Out和Packet-In消息测量时延" class="headerlink" title="SLAM：基于Packet-Out和Packet-In消息测量时延"></a>SLAM：基于Packet-Out和Packet-In消息测量时延</h3><p>交换机之间传输时延是表明链路运行状态的重要参数。由于OpenFlow交换机不具备在正常传输的报文中打时间戳的功能，无法采用传统IP网络中的被动测量方式。因此，需要利用主动测量思想，在交换机之间生成并发送探测包。</p>
+<p>Yu [6]等人提出了基于Packet-Out和Packet-In消息实现在基于软件定义的数据中心网络测量时延，其具体原理如图10所示，假设控制器的测量目标是交换机S1到交换机S2的链路时延，则控制器将探测包发送至S1，并下发规则指定S1将探测包发送至S2。S2接收到探测包后，由于没有对应的转发规则，会将探测包返回控制器，控制器则会计算出探测包在路径中传输的总时间。由于控制器和交换机之间的通信也存在时延，因此控制器还需要发送通信消息，获得控制器和各个交换机之间的消息往返时间，通过计算差值，获得最终的链路时延结果。</p>
+<p><img src="/imgs/SDN_Measurement/基于Packet-Out和Packet-In消息测量时延原理图.png" srcset="/img/loading.gif" alt="图10 基于Packet-Out和Packet-In消息测量时延原理图"></p>
+<center>图10 基于Packet-Out和Packet-In消息测量时延原理图</center>
+
+<p>因此，测量S1到S2的链路时延的详细步骤如下：</p>
+<p>(1)获得探测包传输时间<em>Ttravel</em>：控制器生成探测数据包，其中包含交换机S1的目标转发端口（S1的1端口）和生成探测数据包时的时间戳，用来记录探测包的转发路径和发送探测包的时间。然后，控制器通过Packet-Out消息封装探测数据包，并下发至交换机S1，并从指定端口将探测包转发至S2。S2接收到数据包后，由于没有匹配的流表项，会触发Packet-In消息，将探测包封装并返回控制器。控制器根据探测包中时间戳以及收到探测包的时间计算出探测包在“控制器一S1—S2一控制器”路径上传输的总时间<script type="math/tex">T_{travel}</script>。</p>
+<p>(2)获得控制器和交换机的往返时间RTT：得到<em>Ttravel</em>后，还需要知道数据包控制器和交换机往返传输时间，从而计算得到控制器下发探测包以及交换机返回探测包的时延。根据OpenFlow协议，控制器生成Echo Request消息分别下发交换机S1和S2，并记录收到Echo Reply消息的时间，得到控制器和交换机的往返传输时间RTT。</p>
+<p> (3)计算交换机链路时延：根据上述测量结果，通过公式（6）计算得到交换机S1和S2之间的时延<script type="math/tex">T_{delay}</script>。</p>
+<script type="math/tex; mode=display">
+T_{delay}=T_{travel} - \frac{RTT_{s1}+RTT_{s2} }{2}
+\tag {6}</script><h3 id="SDN-traceroute：基于Packet-Out和Packet-In消息测量报文路径"><a href="#SDN-traceroute：基于Packet-Out和Packet-In消息测量报文路径" class="headerlink" title="SDN traceroute：基于Packet-Out和Packet-In消息测量报文路径"></a>SDN traceroute：基于Packet-Out和Packet-In消息测量报文路径</h3><p>traceroute可提供报文路径可视化功能，确定到达某个主机的网络路径，帮助网管人员进行网络故障排除。然而，traceroute只适用于基于目的IP转发的网络且只能提供三层（IP）路径信息，因此在支持细粒度匹配转发的SDN网络难以发挥作用。</p>
+<p>为了实现SDN网络路径可视化，Agarwal等人[7]基于OpenFlow 的Packet-Out和Packet-In开发了SDN traceroute用于测量报文路径。与traceroute类似，SDN traceroute使用低开销的探测包在不影响原有转发规则下测量报文路径。它的工作过程分为两个阶段，第一阶段如图11所示，使用图着色算法为网络中的每个交换机着色，使得任意两个相邻交换机的颜色不同。SDN traceroute使用VLAN优先级字段（3位）来携带颜色，如果拓扑用三种颜色着色，我们可以将VLAN优先级标签（001）、（010）和（011）分别分配给用第一种颜色、第二种颜色和第三种颜色着色的交换机。默认标签(000)是为生产流量保留的，在标签分配过程中不会使用。然后，它基于着色结果在网络中的每台交换机上安装能匹配所有相邻交换机颜色的高优先级流表项，使它们能够捕获来自相邻交换机的探测包并转发至控制器进行记录。以颜色为（001）的交换机为例，需要安装两条相邻交换机的流表项，其匹配域分别设置为相邻交换机的颜色（010）和（011），优先级设置为32767，匹配数据包将被转发至控制器。值得注意的是，安装的流表项不包含任何与交换机自己颜色匹配的规则。</p>
+<p><img src="/imgs/SDN_Measurement/SDNtraceroute交换机着色和高优先级流表项安装示意图.png" srcset="/img/loading.gif" alt="图11 SDN traceroute交换机着色和高优先级流表项安装示意图"></p>
+<center>图11 SDN traceroute交换机着色和高优先级流表项安装示意图</center>
+
+<p>第二阶段如图12所示，SDN traceroute根据输入的路由起始点（交换机ID和端口），首先使用Packet-Out消息携带探测包注入到该起始交换机，开始跟踪路由。探测包的颜色设置为该交换机的颜色（001），动作设置为按照流表转发。起始交换机接收到Packet-Out消息后，通过查询流表处理探测包。由于探测包中携带的颜色与交换机颜色相同，在流表中没有匹配到第一阶段所安装的流表项，因此按照实际的转发规则将该探测包路由到下一跳。下一跳交换机接收到探测包后，查询流表处理探测包，由于探测包的颜色为（001）在流表中匹配到高优先级转发规则，探测包将用Packet-In消息转发至控制器进行记录。控制器记录下这一跳交换机的ID和端口号后，修改探测包颜色为该跳交换机颜色，并用Packet-Out消息重新将探测包注入到该跳交换机，以继续进行下一跳记录，重复这个过程，最终就能测出报文完整的传输路径，路径以（交换机ID，端口号）构成的列表进行展示。</p>
+<p><img src="/imgs/SDN_Measurement/SDNtraceroute路由追踪示意图.png" srcset="/img/loading.gif" alt="图12 SDN traceroute路由追踪示意图"></p>
+<center>图12 SDN traceroute路由追踪示意图</center>
+
+<h3 id="OFDP：基于Packet-Out和Packet-In消息测量拓扑"><a href="#OFDP：基于Packet-Out和Packet-In消息测量拓扑" class="headerlink" title="OFDP：基于Packet-Out和Packet-In消息测量拓扑"></a>OFDP：基于Packet-Out和Packet-In消息测量拓扑</h3><p>拓扑测量负责对网络中各个设备之间的链路关系进行定期的检测，并维护完整的网络拓扑，是控制器和上层应用实现对整个网络资源进行统一调度和管理的基础。在传统IP网络中，拓扑测量可采用链路发现协议（Link Layer Discovery Protocol，LLDP），其原理是每个网络节点将自己和相邻设备的链路信息发送给其他节点，最终实现在各个网络设备上分散地测量链路信息。LLDP报文格式如图13所示，其中包含了Chassis ID TLV（设备标示符），Port ID TLV（端口标示符)等字段。</p>
+<p><img src="/imgs/SDN_Measurement/LLDP报文格式.png" srcset="/img/loading.gif" alt="图13 LLDP报文格式"></p>
+<center>图13 LLDP报文格式</center>
+
+<p>SDN网络中也可使用LLDP进行拓扑测量，在测量过程中需要借助Packet-Out和Packet-In消息，基于该方法制定的OFDP协议（OpenFlow Discovery Protocol）[8]则被广泛用于SDN控制器实现拓扑测量，其测量原理如图14所示，基本思想如下：</p>
+<p>（1）控制器构造包含LLDP数据包的Packet-Out消息下发至交换机S1，并指定从某端口转发至交换机S2，其中LLDP数据包中的Chassis ID TLV字段设置为交换机S1的Datapath ID，Port ID TLV字段设置为交换机目标转发端口，即S1的1端口。</p>
+<p>（2）S2接收到LLDP数据包，触发Packet-In消息，将LLDP数据包发回控制器。</p>
+<p>（3）控制器分析LLDP报文中Chassis ID和Port ID，结合触发Packet-In消息的交换机及端口号，可知S1的1端口和S2的2端口存在连接关系，从而获得一条链路信息。通过这种方式，控制器可以实现对整个网络的拓扑测量，发送的Packet-Out信息数量与网络中所有交换机活动端口的数量有关。</p>
+<p><img src="/imgs/SDNMeasurement/基于Packet-Out和Packet-In消息测量拓扑原理图.png" srcset="/img/loading.gif" alt="图14 基于Packet-Out和Packet-In消息测量拓扑原理图"></p>
+<center>图14 基于Packet-Out和Packet-In消息测量拓扑原理图</center>
+
+<h2 id="0x03-基于sFlow的测量方法"><a href="#0x03-基于sFlow的测量方法" class="headerlink" title="0x03 基于sFlow的测量方法"></a>0x03 基于sFlow的测量方法</h2><p>sFlow是一种在交换机上进行流量采样的技术，提供对数据包采样和端口计数器采样，实现采集流和端口的统计信息[9]。</p>
+<p>sFlow系统如图15所示，交换机上部署sFlow Agent，在端口上对数据包进行采样，同时采集端口计数器。sFlow Agent将采集到的数据封装在sFlow报文中发送给sFlow Collector，由它分析生成流量视图。</p>
+<p><img src="/imgs/SDN_Measurement/sFlow系统.png" srcset="/img/loading.gif" alt="图15 sFlow系统"></p>
+<center>图15 sFlow系统</center>
+
+<p>sFlow提供数据包采样和端口计数器采样两种方式。</p>
+<p>（1）数据包采样[10]</p>
+<p>交换机在每个端口上按照1/N的采样率抽取数据包，并将它们的首部和元数据（如采样频率、交换机ID、时间戳、输入输出端口等）发送给sFlow Collector，它能够根据采样数据推算出流的统计信息</p>
+<p>例如：某条流中采样数据包个数为100，采样比为1/200，可推算出该流的数据包总数 = 100 * 200 = 20000。</p>
+<p>（2）端口计数器采样 </p>
+<p>sFlow Agent按照采样间隔读取交换机端口计数器，采集端口统计信息（端口接收/发送字节数、接收/发送数据包个数等）发送给sFlow Collector。</p>
+<h3 id="OpenSample：基于sFlow测量流速和链路利用率"><a href="#OpenSample：基于sFlow测量流速和链路利用率" class="headerlink" title="OpenSample：基于sFlow测量流速和链路利用率"></a>OpenSample：基于sFlow测量流速和链路利用率</h3><p>OpenSample[11]是一种针对SDN网络，利用sFlow技术实现的网络测量系统，它可以实现在SDN中测量流速和链路利用率。其架构如图16所示。</p>
+<p><img src="/imgs/SDN_Measurement/OpenSample架构.png" srcset="/img/loading.gif" alt="图16 OpenSample架构"></p>
+<center>图16 OpenSample架构</center>
+
+<p>（1）在OpenFlow交换机端口上使用sFlow Agent直接对数据包以及端口计数器进行采样，采样数据发送给sFlow Collector。</p>
+<p>（2）sFlow Collector对数据包样本和计数器样本进行分析获得网络状态信息。</p>
+<p>（3）控制器通过API获取sFlow Collector分析结果，可用于流量工程、资源规划、入侵监测等。</p>
+<p>OpenSample可用于测量流速和链路利用率。流速是指单位时间内某条流的传输长度，OpenSample基于TCP序列号Seq来测量TCP流速，其原理如图17所示，将同一条TCP流中提取的两个采样数据包TCP Seq值相减，除以两采样数据包的时间戳间隔，如公式（7）所示，即可得到该条流的近似流速。</p>
+<p><img src="/imgs/SDN_Measurement/提取TCP流中两个采样数据包的TCPSeq用于计算流速.png" srcset="/img/loading.gif" alt="图17 提取TCP流中两个采样数据包的TCP Seq用于计算流速"></p>
+<center>图17 提取TCP流中两个采样数据包的TCP Seq用于计算流速</center>
+
+<script type="math/tex; mode=display">
+FlowRate(i,i+1)=\frac{Seq_{i+1}-Seq_{i} }{T_{i+1}-T_{i} }
+\tag {7}</script><p> 链路利用率是指链路吞吐量与链路带宽的比值，OpenSample基于数据包采样测量链路利用率。假设在给定时间段<script type="math/tex">T_{interval}</script>内，被测链路端口上采集的数据包数量为<script type="math/tex">N_{SampledPackets}</script>，端口采样频率为<script type="math/tex">Ratio_{sampling} =1/ N</script>，数据包平均长度为<script type="math/tex">Len_{packet}</script>，则</p>
+<p>（1）通过公式（8）计算可得链路上传输的数据包总数</p>
+<script type="math/tex; mode=display">
+N_{TotalPackets}=\frac{N_{SampledPackets} }{Ratio_{sampling} },Ratio_{sampling}=\frac{1}{N}
+\tag {8}</script><p>（2）通过公式（9）计算可得链路吞吐量</p>
+<script type="math/tex; mode=display">
+Throughtput_{link}=\frac{N_{TotalPackets}*Len_{packet} }{T_{interval} }
+\tag {9}</script><p>（3）通过公式（10）计算可得链路利用率</p>
+<script type="math/tex; mode=display">
+Utilization_{link}=\frac{Throughtput_{link} }{Bandwidth_{link} }
+\tag {10}</script><h2 id="0x04-参考"><a href="#0x04-参考" class="headerlink" title="0x04 参考"></a>0x04 参考</h2><ul>
+<li><p>[1]  戴冕, 程光, 周余阳. 软件定义网络的测量方法研究[J]. 软件学报, 2019(6):1853-1874.</p>
+</li>
+<li><p>[2] Hamad D J , Yalda K G , Okumus I T . Getting traffic statistics from network devices in an SDN environment using OpenFlow[C]// Information Technology and Systems 2015 of An IITP a RAS Interdisciplinary Conference &amp; School. 2015.（基于Port-Stats测量链路吞吐量）</p>
+</li>
+<li><p>[3] Adrichem N L M V , Doerr C , Kuipers O A . OpenNetMon: Network Monitoring in OpenFlow Software-Defined Networks[J]. 2014.（OpenNetMon，基于Flow-Stats消息测量流吞吐量、流丢包率，基于Packet-Out和Packet-In测量链路时延）</p>
+</li>
+<li><p>[4] Tootoonchian A , Ghobadi M , Ganjali Y . OpenTM: Traffic Matrix Estimator for OpenFlow Networks[C]// Passive and Active Measurement, 11th International Conference, PAM 2010, Zurich, Switzerland, April 7-9, 2010. Proceedings. Springer-Verlag, 2010.（OpenTM，基于Flow-Stats和Port-Stats消息测量流量矩阵）</p>
+</li>
+<li><p>[5] Yu C , Lumezanu C , Zhang Y , et al. FlowSense: Monitoring Network Utilization with Zero Measurement Cost[J]. 2013.（FlowSense，基于Packet-In和Flow-Removed消息被动测量链路吞吐量）</p>
+</li>
+<li><p>[6] Yu C , Lumezanu C , Sharma A , et al. Software-Defined Latency Monitoring in Data Center Networks[C]// International Conference on Passive &amp; Active Network Measurement. 2015.（SLAM，基于Packet-Out和Packet-In测量链路时延）</p>
+</li>
+<li><p>[7] Agarwal K , Carter J , Dixon C . SDN traceroute: tracing SDN forwarding without changing network behavior[C]// Workshop on Hot Topics in Software Defined Networking. ACM, 2014.（SDN traceroute，报文路径检测）</p>
+</li>
+<li><p>[8] Azzouni A , Trang N T M , Boutaba R , et al. Limitations of OpenFlow Topology Discovery Protocol[J]. 2017.（OFDP ，Openflow Discovery Protocol原理的介绍）</p>
+</li>
+<li><p>[9] 朱华鑫, 陈宏聪. sFlow网络流量监测技术探析[J]. 计算机与数字工程, 2010, 38(02): 110~113</p>
+</li>
+<li><p>[10] P.Phaal and S. Panchen. Packet Sampling Basics[EB/OL]. <a href="https://sflow.org/packetSamplingBasics/index.htm" target="_blank" rel="noopener">https://sflow.org/packetSamplingBasics/index.htm</a></p>
+</li>
+<li><p>[11] Suh J , Kwon T T , Dixon C , et al. OpenSample: A Low-Latency, Sampling-Based Measurement Platform for Commodity SDN[C]// 2014 IEEE 34th International Conference on Distributed Computing Systems (ICDCS). IEEE, 2014.（OpenSample，测量链路利用率）</p>
+</li>
+</ul>
+
+            <hr>
+          </div>
+          <br>
+          <div>
+            <p>
+            
+              <span>
+                <i class="iconfont icon-inbox"></i>
+                
+                  <a class="hover-with-bg" href="/categories/SDN/">SDN</a>
+                  &nbsp;
+                
+              </span>&nbsp;&nbsp;
+            
+            
+            </p>
+            
+              <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container">
+        <div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+      </div>
+    
+  </div>
+</div>
+
+<!-- custom -->
+
+
+<!-- Comments -->
+<div class="col-lg-7 mx-auto nopadding-md">
+  <div class="container comments mx-auto" id="comments">
+    
+  </div>
+</div>
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+	&copy; 2021 <a href="https://github.com/chentingz" target="_blank" rel="nofollow noopener"><b>Chentingz</b></a>
+	<br>
+	
+    <a href="https://hexo.io" target="_blank" rel="nofollow noopener" font-weight="bold"><b>Hexo</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><b>Fluid</b></a>
+
+    
+  <div>
+    	  
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+	  <i class="fa fa-eye" aria-hidden="true"></i>
+      <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+	  <i class="fa fa-users" aria-hidden="true"></i>
+      <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+
+    <!-- cnzz Analytics icon -->
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var toc = $('#toc');
+      var main = $('main');
+      var tocT = navHeight + (toc.offset().top - main.offset().top);
+      var tocLimMin = main.offset().top - navHeight;
+      var tocLimMax = $('#comments').offset().top - navHeight;
+      $(window).scroll(function () {
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': tocT,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+
+
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+<!-- Plugins -->
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-159680823-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  <!-- cnzz Analytics -->
+  
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "SDN网络测量方法&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+          tex2jax: {
+              inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+              processEscapes: true,
+              skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+      });
+
+      MathJax.Hub.Queue(function() {
+          var all = MathJax.Hub.getAllJax(), i;
+          for(i=0; i < all.length; i += 1) {
+              all[i].SourceElement().parentNode.className += ' has-jax';
+          }
+      });
+
+    </script>
+
+    <script  src="https://cdn.staticfile.org/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
